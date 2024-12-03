@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "npm start",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "start"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "npm test:unit",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "test:unit"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "npm test:e2e",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "test:e2e"
+      ]
+    }
+  ]
+}

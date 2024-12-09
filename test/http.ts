@@ -1,6 +1,5 @@
 import assert from 'assert';
-import http from 'http';
-import request from 'supertest';
+import request, { Agent } from 'supertest';
 import { Server } from '../src/application/http/server';
 import { CompositionRoot, Ports } from '../src/compositionRoot';
 import { IntegrationTestSetupOptions, createIntegrationTestSetup } from './integration';
@@ -13,7 +12,6 @@ export type ResponseHandler<ResponseType> = {
 };
 
 export type HttpTestSetup = {
-  server: http.Server;
   ports: Ports;
   makeGetRequest<ResponseType>(
     path: string,
@@ -50,14 +48,20 @@ export async function createHttpTestSetup(
   server.bootstrap();
   const httpServer = await server.start();
 
-  function createResponseHandlers<ResponseType>(response: request.Response) {
+  function createTestAgent(token?: string): Agent {
+    const agent = request.agent(httpServer);
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    return agent.set(headers);
+  }
+
+  function createResponseHandler<ResponseType>(response: request.Response) {
     return {
       ok: response.ok,
       status: response.status,
       getData(): ResponseType {
+        assert(response.body.data);
         return response.body.data;
       },
-
       getError(): { message: string } {
         assert(response.body.error);
         return { message: response.body.error };
@@ -69,9 +73,9 @@ export async function createHttpTestSetup(
     path: string,
     token?: string,
   ): Promise<ResponseHandler<ResponseType>> {
-    const agent = request.agent(httpServer);
-    const response = await agent.get(path).set('Authorization', `Bearer ${token}`).send();
-    return createResponseHandlers<ResponseType>(response);
+    const agent = createTestAgent(token);
+    const response = await agent.get(path).send();
+    return createResponseHandler<ResponseType>(response);
   }
 
   async function makePostRequest<ResponseType>(
@@ -79,9 +83,9 @@ export async function createHttpTestSetup(
     body: Record<string, unknown>,
     token?: string,
   ): Promise<ResponseHandler<ResponseType>> {
-    const agent = request.agent(httpServer);
-    const response = await agent.post(path).set('Authorization', `Bearer ${token}`).send(body);
-    return createResponseHandlers<ResponseType>(response);
+    const agent = createTestAgent(token);
+    const response = await agent.post(path).send(body);
+    return createResponseHandler<ResponseType>(response);
   }
 
   async function makePutRequest<ResponseType>(
@@ -89,22 +93,21 @@ export async function createHttpTestSetup(
     body: Record<string, unknown>,
     token?: string,
   ): Promise<ResponseHandler<ResponseType>> {
-    const agent = request.agent(httpServer);
-    const response = await agent.put(path).set('Authorization', `Bearer ${token}`).send(body);
-    return createResponseHandlers<ResponseType>(response);
+    const agent = createTestAgent(token);
+    const response = await agent.put(path).send(body);
+    return createResponseHandler<ResponseType>(response);
   }
 
   async function makeDeleteRequest<ResponseType>(
     path: string,
     token?: string,
   ): Promise<ResponseHandler<ResponseType>> {
-    const agent = request.agent(httpServer);
-    const response = await agent.delete(path).set('Authorization', `Bearer ${token}`).send();
-    return createResponseHandlers<ResponseType>(response);
+    const agent = createTestAgent(token);
+    const response = await agent.delete(path).send();
+    return createResponseHandler<ResponseType>(response);
   }
 
   return {
-    server: httpServer,
     ports,
     makeGetRequest,
     makePostRequest,

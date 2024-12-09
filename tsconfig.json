@@ -33,6 +33,7 @@
   "include": [
     "src",
     "test",
+    "types"
   ],
   "ts-node": {
     "swc": true

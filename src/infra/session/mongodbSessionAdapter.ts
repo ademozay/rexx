@@ -31,7 +31,7 @@ export class MongodbSessionAdapter implements SessionPort {
   async createSession(session: Session): Promise<Session> {
     await this.sessionCollection.insertOne({
       _id: from(session.id),
-      movieId: session.movieId,
+      movieId: from(session.movieId),
       sessionDate: session.sessionDate.value,
       timeSlotLabel: session.timeSlot.value,
       roomNumber: session.roomNumber,
@@ -45,7 +45,7 @@ export class MongodbSessionAdapter implements SessionPort {
       { _id: from(session.id) },
       {
         $set: {
-          movieId: session.movieId,
+          movieId: from(session.movieId),
           sessionDate: session.sessionDate.value,
           timeSlotLabel: session.timeSlot.value,
           roomNumber: session.roomNumber,
@@ -68,7 +68,7 @@ export class MongodbSessionAdapter implements SessionPort {
 
     return Session.hydrate(
       {
-        movieId: session.movieId,
+        movieId: session.movieId.toString(),
         sessionDate: session.sessionDate,
         timeSlotLabel: session.timeSlotLabel,
         roomNumber: session.roomNumber,
@@ -78,12 +78,14 @@ export class MongodbSessionAdapter implements SessionPort {
   }
 
   async findSessionsByMovieIds(movieIds: string[]): Promise<Session[]> {
-    const sessions = await this.sessionCollection.find({ movieId: { $in: movieIds } }).toArray();
+    const sessions = await this.sessionCollection
+      .find({ movieId: { $in: movieIds.map((id) => from(id)) } })
+      .toArray();
 
     return sessions.map((session) =>
       Session.hydrate(
         {
-          movieId: session.movieId,
+          movieId: session.movieId.toString(),
           sessionDate: session.sessionDate,
           timeSlotLabel: session.timeSlotLabel,
           roomNumber: session.roomNumber,
@@ -95,7 +97,7 @@ export class MongodbSessionAdapter implements SessionPort {
 
   async sessionExists(session: Session): Promise<boolean> {
     const existingSession = await this.sessionCollection.findOne({
-      movieId: session.movieId,
+      movieId: from(session.movieId),
       sessionDate: session.sessionDate.value,
       timeSlotLabel: session.timeSlot.value,
       roomNumber: session.roomNumber,
@@ -107,8 +109,8 @@ export class MongodbSessionAdapter implements SessionPort {
   async createTicket(ticket: Ticket): Promise<Ticket> {
     await this.ticketCollection.insertOne({
       _id: from(ticket.id),
-      userId: ticket.userId,
-      sessionId: ticket.sessionId,
+      userId: from(ticket.userId),
+      sessionId: from(ticket.sessionId),
     });
 
     return ticket;
@@ -124,15 +126,27 @@ export class MongodbSessionAdapter implements SessionPort {
       return undefined;
     }
 
-    return Ticket.hydrate(ticket, ticket._id.toString());
+    return Ticket.hydrate(
+      {
+        userId: ticket.userId.toString(),
+        sessionId: ticket.sessionId.toString(),
+      },
+      ticket._id.toString(),
+    );
   }
 
   async findTicketBySessionId(sessionId: string): Promise<Ticket | undefined> {
-    const ticket = await this.ticketCollection.findOne({ sessionId });
+    const ticket = await this.ticketCollection.findOne({ sessionId: from(sessionId) });
     if (!ticket) {
       return undefined;
     }
 
-    return Ticket.hydrate(ticket, ticket._id.toString());
+    return Ticket.hydrate(
+      {
+        userId: ticket.userId.toString(),
+        sessionId: ticket.sessionId.toString(),
+      },
+      ticket._id.toString(),
+    );
   }
 }

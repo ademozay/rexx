@@ -65,11 +65,12 @@ export class CompositionRoot {
     }
 
     const mongoClient = await createMongoClient();
+    const databaseName = process.env.MONGODB_DATABASE ?? 'rexx';
 
-    const mongodbMovieAdapter = new MongodbMovieAdapter(mongoClient);
-    const mongodbSessionAdapter = new MongodbSessionAdapter(mongoClient);
+    const mongodbMovieAdapter = new MongodbMovieAdapter(mongoClient, databaseName);
+    const mongodbSessionAdapter = new MongodbSessionAdapter(mongoClient, databaseName);
     await mongodbSessionAdapter.createIndexes();
-    const mongodbUserAdapter = new MongodbUserAdapter(mongoClient);
+    const mongodbUserAdapter = new MongodbUserAdapter(mongoClient, databaseName);
     await mongodbUserAdapter.createIndexes();
     await mongodbUserAdapter.createRootUser();
 

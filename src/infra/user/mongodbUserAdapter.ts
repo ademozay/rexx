@@ -17,10 +17,10 @@ export class MongodbUserAdapter implements UserPort {
 
   private readonly watchHistoryCollection: Collection<PersistedWatchHistory>;
 
-  constructor(mongoClient: MongoClient) {
-    this.authCollection = mongoClient.db('rexx').collection('auth');
-    this.userCollection = mongoClient.db('rexx').collection('user');
-    this.watchHistoryCollection = mongoClient.db('rexx').collection('watchHistory');
+  constructor(mongoClient: MongoClient, databaseName: string) {
+    this.authCollection = mongoClient.db(databaseName).collection('auth');
+    this.userCollection = mongoClient.db(databaseName).collection('user');
+    this.watchHistoryCollection = mongoClient.db(databaseName).collection('watchHistory');
   }
 
   async createIndexes(): Promise<void> {

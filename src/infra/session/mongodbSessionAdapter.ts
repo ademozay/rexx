@@ -11,9 +11,9 @@ export class MongodbSessionAdapter implements SessionPort {
 
   private readonly ticketCollection: Collection<PersistedTicket>;
 
-  constructor(mongoClient: MongoClient) {
-    this.sessionCollection = mongoClient.db('rexx').collection('session');
-    this.ticketCollection = mongoClient.db('rexx').collection('ticket');
+  constructor(mongoClient: MongoClient, databaseName: string) {
+    this.sessionCollection = mongoClient.db(databaseName).collection('session');
+    this.ticketCollection = mongoClient.db(databaseName).collection('ticket');
   }
 
   async createIndexes(): Promise<void> {

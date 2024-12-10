@@ -7,8 +7,8 @@ import { PersistedMovie } from './entity/persistedMovie';
 export class MongodbMovieAdapter implements MoviePort {
   private readonly movieCollection: Collection<PersistedMovie>;
 
-  constructor(mongoClient: MongoClient) {
-    this.movieCollection = mongoClient.db('rexx').collection('movie');
+  constructor(mongoClient: MongoClient, databaseName: string) {
+    this.movieCollection = mongoClient.db(databaseName).collection('movie');
   }
 
   async createMovie(movie: Movie): Promise<Movie> {

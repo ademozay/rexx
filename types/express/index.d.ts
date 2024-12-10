@@ -1,14 +1,8 @@
 import 'express';
 import { HttpContext } from '../../src/application/http/context';
 
-declare global {
-  namespace Express {
-    interface Request {}
-
-    interface Locals {
-      httpContext: HttpContext;
-    }
+declare module 'express-serve-static-core' {
+  interface Locals {
+    httpContext: HttpContext;
   }
 }
-
-export {};

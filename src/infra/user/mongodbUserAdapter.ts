@@ -96,16 +96,16 @@ export class MongodbUserAdapter implements UserPort {
   async createWatchHistory(watchHistory: WatchHistory): Promise<void> {
     await this.watchHistoryCollection.insertOne({
       _id: from(watchHistory.id),
-      userId: watchHistory.userId,
-      movieId: watchHistory.movieId,
+      userId: from(watchHistory.userId),
+      movieId: from(watchHistory.movieId),
     });
   }
 
   async findWatchHistory(userId: string): Promise<WatchHistory[]> {
-    const watchHistory = await this.watchHistoryCollection.find({ userId }).toArray();
+    const watchHistory = await this.watchHistoryCollection.find({ userId: from(userId) }).toArray();
 
     return watchHistory.map(({ _id, movieId }) =>
-      WatchHistory.hydrate({ userId, movieId }, _id.toString()),
+      WatchHistory.hydrate({ userId, movieId: movieId.toString() }, _id.toString()),
     );
   }
 

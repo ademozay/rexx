@@ -20,10 +20,13 @@ export async function createIntegrationTestSetup({
   const compositionRoot = CompositionRoot.getInstance();
 
   const mongoClient = await createMongoClient();
+  const databaseName = process.env.MONGODB_DATABASE ?? 'rexx-test';
 
-  const mongodbMovieAdapter = ports?.moviePort ?? new MongodbMovieAdapter(mongoClient);
-  const mongodbSessionAdapter = ports?.sessionPort ?? new MongodbSessionAdapter(mongoClient);
-  const mongodbUserAdapter = ports?.userPort ?? new MongodbUserAdapter(mongoClient);
+  const mongodbMovieAdapter =
+    ports?.moviePort ?? new MongodbMovieAdapter(mongoClient, databaseName);
+  const mongodbSessionAdapter =
+    ports?.sessionPort ?? new MongodbSessionAdapter(mongoClient, databaseName);
+  const mongodbUserAdapter = ports?.userPort ?? new MongodbUserAdapter(mongoClient, databaseName);
 
   compositionRoot.bindServices();
   compositionRoot.bindControllers();
@@ -36,7 +39,7 @@ export async function createIntegrationTestSetup({
   compositionRoot.bindBaseContext();
 
   async function resetState() {
-    const db = mongoClient.db('rexx');
+    const db = mongoClient.db(databaseName);
     const collections = await db.collections();
     await Promise.all(collections.map((collection) => collection.drop()));
   }

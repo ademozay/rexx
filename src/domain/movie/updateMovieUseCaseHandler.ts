@@ -3,8 +3,8 @@ import { InjectionToken } from '../../injectionToken';
 import { AccessDeniedError } from '../shared/accessDeniedError';
 import { UseCaseHandler } from '../shared/useCaseHandler';
 import { Movie } from './entity/movie';
-import { MovieNotFoundError } from './error/movieNotFoundError';
-import { OnlyManagersCanUpdateMovieError } from './error/onlyManagersCanUpdateMovieError';
+import { MovieNotFoundError } from './error/movie/movieNotFoundError';
+import { OnlyManagersCanUpdateMovieError } from './error/movie/onlyManagersCanUpdateMovieError';
 import { MoviePort } from './port/moviePort';
 import { UpdateMovieUseCase } from './useCase/updateMovieUseCase';
 

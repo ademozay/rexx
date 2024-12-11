@@ -15,16 +15,16 @@ export enum InjectionToken {
   UpdateSessionUseCaseHandler = 'UpdateSessionUseCaseHandler',
   DeleteSessionUseCaseHandler = 'DeleteSessionUseCaseHandler',
   BuyTicketUseCaseHandler = 'BuyTicketUseCaseHandler',
-  FindMovieSessionsUseCaseHandler = 'FindMovieSessionsUseCaseHandler',
   WatchMovieUseCaseHandler = 'WatchMovieUseCaseHandler',
   GetWatchHistoryUseCaseHandler = 'GetWatchHistoryUseCaseHandler',
 
-  MoviePort = 'MoviePort',
-  SessionPort = 'SessionPort',
   UserPort = 'UserPort',
+  MoviePort = 'MoviePort',
+  TicketPort = 'TicketPort',
 
-  MovieService = 'MovieService',
   UserService = 'UserService',
+  MovieService = 'MovieService',
+  TicketService = 'TicketService',
 
   AuthController = 'AuthController',
   MovieController = 'MovieController',

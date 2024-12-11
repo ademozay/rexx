@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
-import { Session } from '../../src/domain/session/entity/session';
-import { SessionPort } from '../../src/domain/session/port/sessionPort';
-import { TimeSlotLabel } from '../../src/domain/session/valueObjects/timeSlot';
+import { Session } from '../../src/domain/movie/entity/session';
+import { MoviePort } from '../../src/domain/movie/port/moviePort';
+import { TimeSlotLabel } from '../../src/domain/movie/valueObjects/timeSlot';
 
 type SessionOverrides = {
   movieId?: string;
@@ -11,7 +11,7 @@ type SessionOverrides = {
 };
 
 export async function createMockSession(
-  sessionPort: SessionPort,
+  moviePort: MoviePort,
   overrides: SessionOverrides,
 ): Promise<Session> {
   const session = Session.create({
@@ -20,5 +20,6 @@ export async function createMockSession(
     timeSlotLabel: overrides.timeSlotLabel ?? TimeSlotLabel.Morning,
     roomNumber: overrides.roomNumber ?? 1,
   });
-  return sessionPort.createSession(session);
+
+  return moviePort.createSession(session);
 }

@@ -1,7 +1,7 @@
 import { CompositionRoot, Ports } from '../src/compositionRoot';
 import { createMongoClient } from '../src/infra/mongodb/createMongoClient';
 import { MongodbMovieAdapter } from '../src/infra/movie/mongodbMovieAdapter';
-import { MongodbSessionAdapter } from '../src/infra/session/mongodbSessionAdapter';
+import { MongodbTicketAdapter } from '../src/infra/session/mongodbTicketAdapter';
 import { MongodbUserAdapter } from '../src/infra/user/mongodbUserAdapter';
 
 export interface IntegrationTestSetupOptions {
@@ -22,17 +22,17 @@ export async function createIntegrationTestSetup({
   const mongoClient = await createMongoClient();
   const databaseName = process.env.MONGODB_DATABASE ?? 'rexx-test';
 
+  const mongodbTicketAdapter =
+    ports?.ticketPort ?? new MongodbTicketAdapter(mongoClient, databaseName);
   const mongodbMovieAdapter =
     ports?.moviePort ?? new MongodbMovieAdapter(mongoClient, databaseName);
-  const mongodbSessionAdapter =
-    ports?.sessionPort ?? new MongodbSessionAdapter(mongoClient, databaseName);
   const mongodbUserAdapter = ports?.userPort ?? new MongodbUserAdapter(mongoClient, databaseName);
 
   compositionRoot.bindServices();
   compositionRoot.bindControllers();
   compositionRoot.bindPorts({
     moviePort: mongodbMovieAdapter,
-    sessionPort: mongodbSessionAdapter,
+    ticketPort: mongodbTicketAdapter,
     userPort: mongodbUserAdapter,
   });
   compositionRoot.bindUseCaseHandlers();
@@ -49,7 +49,7 @@ export async function createIntegrationTestSetup({
   return {
     ports: {
       moviePort: mongodbMovieAdapter,
-      sessionPort: mongodbSessionAdapter,
+      ticketPort: mongodbTicketAdapter,
       userPort: mongodbUserAdapter,
     },
     resetState,

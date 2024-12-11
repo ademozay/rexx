@@ -3,7 +3,7 @@ import { InjectionToken } from '../../injectionToken';
 import { AccessDeniedError } from '../shared/accessDeniedError';
 import { UseCaseHandler } from '../shared/useCaseHandler';
 import { Movie } from './entity/movie';
-import { OnlyManagersCanCreateMovieError } from './error/onlyManagersCanCreateMovieError';
+import { OnlyManagersCanCreateMovieError } from './error/movie/onlyManagersCanCreateMovieError';
 import { MoviePort } from './port/moviePort';
 import { CreateMovieUseCase } from './useCase/createMovieUseCase';
 

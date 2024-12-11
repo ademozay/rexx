@@ -1,6 +1,6 @@
 import { MUUID } from 'uuid-mongodb';
-import { Session } from '../../../domain/session/entity/session';
-import { TimeSlotLabel } from '../../../domain/session/valueObjects/timeSlot';
+import { Session } from '../../../domain/movie/entity/session';
+import { TimeSlotLabel } from '../../../domain/movie/valueObjects/timeSlot';
 import { PersistedEntity } from '../../mongodb/persistedEntity';
 
 export type PersistedSession = PersistedEntity<

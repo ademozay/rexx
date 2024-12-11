@@ -1,5 +1,5 @@
-import { Session } from '../../../domain/session/entity/session';
-import { TimeSlotLabel } from '../../../domain/session/valueObjects/timeSlot';
+import { Session } from '../../../domain/movie/entity/session';
+import { TimeSlotLabel } from '../../../domain/movie/valueObjects/timeSlot';
 
 export type SessionResponse = {
   id: string;

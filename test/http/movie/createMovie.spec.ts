@@ -45,6 +45,7 @@ describe('create movie', () => {
       id: expect.any(String),
       name: 'Truman Show',
       ageRestriction: AgeRestriction.PG_7,
+      sessions: [],
     });
   });
 

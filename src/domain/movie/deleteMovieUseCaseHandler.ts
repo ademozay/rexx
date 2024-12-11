@@ -2,8 +2,8 @@ import { inject, injectable } from 'inversify';
 import { InjectionToken } from '../../injectionToken';
 import { AccessDeniedError } from '../shared/accessDeniedError';
 import { UseCaseHandler } from '../shared/useCaseHandler';
-import { MovieNotFoundError } from './error/movieNotFoundError';
-import { OnlyManagersCanDeleteMovieError } from './error/onlyManagersCanDeleteMovieError';
+import { MovieNotFoundError } from './error/movie/movieNotFoundError';
+import { OnlyManagersCanDeleteMovieError } from './error/movie/onlyManagersCanDeleteMovieError';
 import { MoviePort } from './port/moviePort';
 import { DeleteMovieUseCase } from './useCase/deleteMovieUseCase';
 

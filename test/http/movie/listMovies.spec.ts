@@ -1,5 +1,5 @@
 import { AgeRestriction } from '../../../src/domain/movie/entity/ageRestriction';
-import { TimeSlotLabel } from '../../../src/domain/session/valueObjects/timeSlot';
+import { TimeSlotLabel } from '../../../src/domain/movie/valueObjects/timeSlot';
 import { UserRole } from '../../../src/domain/user/entity/userRole';
 import { createMockMovie } from '../../helper/createMockMovie';
 import { createMockSession } from '../../helper/createMockSession';
@@ -25,7 +25,7 @@ describe('list movies', () => {
   it('should list movies', async () => {
     const {
       makeGetRequest,
-      ports: { userPort, moviePort, sessionPort },
+      ports: { userPort, moviePort },
     } = setup;
 
     const user = await createMockUser(userPort, { role: UserRole.CUSTOMER });
@@ -36,7 +36,7 @@ describe('list movies', () => {
       ageRestriction: AgeRestriction.PG_13,
     });
 
-    const session = await createMockSession(sessionPort, {
+    const session = await createMockSession(moviePort, {
       movieId: movie.id,
       sessionDate: '2024-08-22',
       timeSlotLabel: TimeSlotLabel.Morning,

@@ -1,5 +1,5 @@
 import { ValueObject } from '../../shared/valueObject';
-import { MovieNameCannotBeEmptyError } from '../error/movieNameCannotBeEmptyError';
+import { MovieNameCannotBeEmptyError } from '../error/movie/movieNameCannotBeEmptyError';
 
 export class MovieName extends ValueObject<string> {
   private constructor(value: string) {

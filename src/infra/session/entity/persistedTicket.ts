@@ -1,9 +1,9 @@
 import { MUUID } from 'uuid-mongodb';
-import { Ticket } from '../../../domain/session/entity/ticket';
+import { Ticket } from '../../../domain/ticket/entity/ticket';
 import { PersistedEntity } from '../../mongodb/persistedEntity';
 
 export type PersistedTicket = PersistedEntity<
-  Pick<Ticket, 'id'> & {
+  Pick<Ticket, 'id' | 'used'> & {
     userId: MUUID;
     sessionId: MUUID;
   }

@@ -1,14 +1,13 @@
 import { Container } from 'inversify';
 import { CreateMovieUseCaseHandler } from './domain/movie/createMovieUseCaseHandler';
+import { CreateSessionUseCaseHandler } from './domain/movie/createSessionUseCaseHandler';
 import { DeleteMovieUseCaseHandler } from './domain/movie/deleteMovieUseCaseHandler';
+import { DeleteSessionUseCaseHandler } from './domain/movie/deleteSessionUseCaseHandler';
 import { ListMoviesUseCaseHandler } from './domain/movie/listMoviesUseCaseHandler';
 import { UpdateMovieUseCaseHandler } from './domain/movie/updateMovieUseCaseHandler';
-import { BuyTicketUseCaseHandler } from './domain/session/buyTicketUseCaseHandler';
-import { CreateSessionUseCaseHandler } from './domain/session/createSessionUseCaseHandler';
-import { DeleteSessionUseCaseHandler } from './domain/session/deleteSessionUseCaseHandler';
-import { FindMovieSessionsUseCaseHandler } from './domain/session/findMovieSessionsUseCaseHandler';
-import { UpdateSessionUseCaseHandler } from './domain/session/updateSessionUseCaseHandler';
-import { WatchMovieUseCaseHandler } from './domain/session/watchMovieUseCaseHandler';
+import { UpdateSessionUseCaseHandler } from './domain/movie/updateSessionUseCaseHandler';
+import { WatchMovieUseCaseHandler } from './domain/movie/watchMovieUseCaseHandler';
+import { BuyTicketUseCaseHandler } from './domain/ticket/buyTicketUseCaseHandler';
 import { FindActorByTokenUseCaseHandler } from './domain/user/findUserByTokenUseCaseHandler';
 import { GetWatchHistoryUseCaseHandler } from './domain/user/getWatchHistoryUseCaseHandler';
 import { RegisterCustomerUseCaseHandler } from './domain/user/registerCustomerUseCaseHandler';
@@ -30,7 +29,6 @@ export interface BaseContext {
     deleteSessionUseCaseHandler: DeleteSessionUseCaseHandler;
     updateSessionUseCaseHandler: UpdateSessionUseCaseHandler;
     buyTicketUseCaseHandler: BuyTicketUseCaseHandler;
-    findMovieSessionsUseCaseHandler: FindMovieSessionsUseCaseHandler;
     watchMovieUseCaseHandler: WatchMovieUseCaseHandler;
     getWatchHistoryUseCaseHandler: GetWatchHistoryUseCaseHandler;
   };
@@ -74,9 +72,6 @@ export function makeBaseContext(container: Container): BaseContext {
       ),
       buyTicketUseCaseHandler: container.get<BuyTicketUseCaseHandler>(
         InjectionToken.BuyTicketUseCaseHandler,
-      ),
-      findMovieSessionsUseCaseHandler: container.get<FindMovieSessionsUseCaseHandler>(
-        InjectionToken.FindMovieSessionsUseCaseHandler,
       ),
       watchMovieUseCaseHandler: container.get<WatchMovieUseCaseHandler>(
         InjectionToken.WatchMovieUseCaseHandler,

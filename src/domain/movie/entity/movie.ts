@@ -1,10 +1,12 @@
 import { AggregateRoot } from '../../shared/aggregateRoot';
 import { MovieName } from '../valueObjects/movieName';
 import { AgeRestriction } from './ageRestriction';
+import { Session } from './session';
 
 interface MovieProps {
   name: MovieName;
   ageRestriction: AgeRestriction;
+  sessions?: Session[];
 }
 
 export class Movie extends AggregateRoot<MovieProps> {
@@ -30,6 +32,24 @@ export class Movie extends AggregateRoot<MovieProps> {
 
   get ageRestriction(): AgeRestriction {
     return this.props.ageRestriction;
+  }
+
+  get sessions(): Session[] {
+    return this.props.sessions ?? [];
+  }
+
+  addSession(session: Session): Session {
+    const sessions = this.props.sessions ?? [];
+    sessions.push(session);
+    this.props.sessions = sessions;
+    return session;
+  }
+
+  addSessions(sessions: Session[]): void {
+    if (!this.props.sessions) {
+      this.props.sessions = [];
+    }
+    this.props.sessions.push(...sessions);
   }
 
   isRestrictedForAge(age: number): boolean {

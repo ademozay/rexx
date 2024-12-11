@@ -1,4 +1,4 @@
-import { Ticket } from '../../../domain/session/entity/ticket';
+import { Ticket } from '../../../domain/ticket/entity/ticket';
 
 export type TicketResponse = {
   id: string;

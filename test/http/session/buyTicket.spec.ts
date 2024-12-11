@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { AgeRestriction } from '../../../src/domain/movie/entity/ageRestriction';
-import { TimeSlotLabel } from '../../../src/domain/session/valueObjects/timeSlot';
+import { TimeSlotLabel } from '../../../src/domain/movie/valueObjects/timeSlot';
 import { UserRole } from '../../../src/domain/user/entity/userRole';
 import { createMockMovie } from '../../helper/createMockMovie';
 import { createMockSession } from '../../helper/createMockSession';
@@ -27,7 +27,7 @@ describe('buy ticket', () => {
   it('should buy a ticket for a session', async () => {
     const {
       makePostRequest,
-      ports: { userPort, moviePort, sessionPort },
+      ports: { userPort, moviePort },
     } = setup;
 
     const user = await createMockUser(userPort, { role: UserRole.CUSTOMER });
@@ -39,7 +39,7 @@ describe('buy ticket', () => {
     });
 
     const sessionDate = createSessionDate();
-    const session = await createMockSession(sessionPort, {
+    const session = await createMockSession(moviePort, {
       movieId: movie.id,
       sessionDate: sessionDate.value,
       timeSlotLabel: TimeSlotLabel.Morning,
@@ -77,7 +77,7 @@ describe('buy ticket', () => {
   it('should return 400 when the user is too young', async () => {
     const {
       makePostRequest,
-      ports: { userPort, moviePort, sessionPort },
+      ports: { userPort, moviePort },
     } = setup;
 
     const user = await createMockUser(userPort, { age: 13, role: UserRole.CUSTOMER });
@@ -89,7 +89,7 @@ describe('buy ticket', () => {
     });
 
     const sessionDate = createSessionDate();
-    const session = await createMockSession(sessionPort, {
+    const session = await createMockSession(moviePort, {
       movieId: movie.id,
       sessionDate: sessionDate.value,
       timeSlotLabel: TimeSlotLabel.Morning,
@@ -111,7 +111,7 @@ describe('buy ticket', () => {
   it('should return 400 if the session is already started', async () => {
     const {
       makePostRequest,
-      ports: { userPort, moviePort, sessionPort },
+      ports: { userPort, moviePort },
     } = setup;
 
     const user = await createMockUser(userPort, { role: UserRole.CUSTOMER });
@@ -123,7 +123,7 @@ describe('buy ticket', () => {
     });
 
     const sessionDate = createSessionDate(-1);
-    const session = await createMockSession(sessionPort, {
+    const session = await createMockSession(moviePort, {
       movieId: movie.id,
       sessionDate: sessionDate.value,
       timeSlotLabel: TimeSlotLabel.Morning,

@@ -1,16 +1,15 @@
 import { Request, Response } from 'express';
 import { injectable } from 'inversify';
-import { MovieNameCannotBeEmptyError } from '../../../domain/movie/error/movieNameCannotBeEmptyError';
-import { MovieNotFoundError } from '../../../domain/movie/error/movieNotFoundError';
-import { OnlyManagersCanCreateMovieError } from '../../../domain/movie/error/onlyManagersCanCreateMovieError';
-import { OnlyManagersCanDeleteMovieError } from '../../../domain/movie/error/onlyManagersCanDeleteMovieError';
-import { OnlyManagersCanUpdateMovieError } from '../../../domain/movie/error/onlyManagersCanUpdateMovieError';
+import { MovieNameCannotBeEmptyError } from '../../../domain/movie/error/movie/movieNameCannotBeEmptyError';
+import { MovieNotFoundError } from '../../../domain/movie/error/movie/movieNotFoundError';
+import { OnlyManagersCanCreateMovieError } from '../../../domain/movie/error/movie/onlyManagersCanCreateMovieError';
+import { OnlyManagersCanDeleteMovieError } from '../../../domain/movie/error/movie/onlyManagersCanDeleteMovieError';
+import { OnlyManagersCanUpdateMovieError } from '../../../domain/movie/error/movie/onlyManagersCanUpdateMovieError';
 import { AgeRestrictionMapper } from '../../../domain/movie/mapper/ageRestrictionMapper';
-import { Session } from '../../../domain/session/entity/session';
 import { AccessDeniedError } from '../../../domain/shared/accessDeniedError';
 import { DomainError } from '../../../domain/shared/domainError';
 import { logger } from '../../../logger';
-import { MovieMapper, MovieResponse } from '../mapper/movieMapper';
+import { MovieMapper } from '../mapper/movieMapper';
 import { createErrorResponse } from '../response';
 
 @injectable()
@@ -178,43 +177,23 @@ export class MovieController {
     }
 
     const {
-      useCases: { listMoviesUseCaseHandler, findMovieSessionsUseCaseHandler },
+      useCases: { listMoviesUseCaseHandler },
     } = response.locals.httpContext;
 
     try {
-      const movies = await listMoviesUseCaseHandler.handle({
-        actor,
-      });
-      const movieIds = movies.map((movie) => movie.id);
-
-      const sessions = await findMovieSessionsUseCaseHandler.handle({
-        actor,
-        movieIds,
-      });
-      const sessionsByMovieId = new Map<string, Session[]>();
-      sessions.forEach((session) => {
-        const movieSessions = sessionsByMovieId.get(session.movieId) ?? [];
-        movieSessions.push(session);
-        sessionsByMovieId.set(session.movieId, movieSessions);
-      });
-
-      const moviesWithSessions: MovieResponse[] = movies.map((movie) => {
-        const movieSessions = sessionsByMovieId.get(movie.id) ?? [];
-        return MovieMapper.toResponse(movie, movieSessions);
-      });
+      const movies = await listMoviesUseCaseHandler.handle({ actor });
 
       response.status(200).json({
-        data: moviesWithSessions,
+        data: movies.map(MovieMapper.toResponse),
       });
     } catch (error) {
-      logger.error('error listing movies', error);
-
       // TODO: we should handle this error in each endpoint
       if (error instanceof AccessDeniedError) {
         response.status(401).json(createErrorResponse(error.message));
         return;
       }
 
+      logger.error('error listing movies', error);
       response.status(500).json(createErrorResponse('Internal server error'));
     }
   }

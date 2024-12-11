@@ -52,6 +52,7 @@ describe('update movie', () => {
       id: movie.id,
       name: 'Prestige',
       ageRestriction: AgeRestriction.PG_13,
+      sessions: [],
     });
   });
 

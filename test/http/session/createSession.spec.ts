@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { AgeRestriction } from '../../../src/domain/movie/entity/ageRestriction';
-import { TimeSlotLabel } from '../../../src/domain/session/valueObjects/timeSlot';
+import { TimeSlotLabel } from '../../../src/domain/movie/valueObjects/timeSlot';
 import { UserRole } from '../../../src/domain/user/entity/userRole';
 import { createMockMovie } from '../../helper/createMockMovie';
 import { createMockSession } from '../../helper/createMockSession';
@@ -98,7 +98,7 @@ describe('create session', () => {
   it('should return 400 when session already exists', async () => {
     const {
       makePostRequest,
-      ports: { userPort, moviePort, sessionPort },
+      ports: { userPort, moviePort },
     } = setup;
 
     const user = await createMockUser(userPort, { role: UserRole.MANAGER });
@@ -110,7 +110,7 @@ describe('create session', () => {
     });
 
     const sessionDate = createSessionDate();
-    const session = await createMockSession(sessionPort, {
+    const session = await createMockSession(moviePort, {
       movieId: movie.id,
       sessionDate: sessionDate.value,
       timeSlotLabel: TimeSlotLabel.Morning,

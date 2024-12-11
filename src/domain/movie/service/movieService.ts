@@ -1,7 +1,8 @@
 import { inject, injectable } from 'inversify';
 import { InjectionToken } from '../../../injectionToken';
 import { Movie } from '../entity/movie';
-import { MovieNotFoundError } from '../error/movieNotFoundError';
+import { Session } from '../entity/session';
+import { MovieNotFoundError } from '../error/movie/movieNotFoundError';
 import { MoviePort } from '../port/moviePort';
 
 @injectable()
@@ -18,5 +19,9 @@ export class MovieService {
     }
 
     return movie;
+  }
+
+  async findSessionById(sessionId: string): Promise<Session | undefined> {
+    return this.moviePort.findSessionById(sessionId);
   }
 }

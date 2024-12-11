@@ -5,18 +5,18 @@ import { SessionController } from './application/http/controller/sessionControll
 import { Controllers } from './application/http/server';
 import { BaseContext, makeBaseContext } from './context';
 import { CreateMovieUseCaseHandler } from './domain/movie/createMovieUseCaseHandler';
+import { CreateSessionUseCaseHandler } from './domain/movie/createSessionUseCaseHandler';
 import { DeleteMovieUseCaseHandler } from './domain/movie/deleteMovieUseCaseHandler';
+import { DeleteSessionUseCaseHandler } from './domain/movie/deleteSessionUseCaseHandler';
 import { ListMoviesUseCaseHandler } from './domain/movie/listMoviesUseCaseHandler';
 import { MoviePort } from './domain/movie/port/moviePort';
 import { MovieService } from './domain/movie/service/movieService';
 import { UpdateMovieUseCaseHandler } from './domain/movie/updateMovieUseCaseHandler';
-import { BuyTicketUseCaseHandler } from './domain/session/buyTicketUseCaseHandler';
-import { CreateSessionUseCaseHandler } from './domain/session/createSessionUseCaseHandler';
-import { DeleteSessionUseCaseHandler } from './domain/session/deleteSessionUseCaseHandler';
-import { FindMovieSessionsUseCaseHandler } from './domain/session/findMovieSessionsUseCaseHandler';
-import { SessionPort } from './domain/session/port/sessionPort';
-import { UpdateSessionUseCaseHandler } from './domain/session/updateSessionUseCaseHandler';
-import { WatchMovieUseCaseHandler } from './domain/session/watchMovieUseCaseHandler';
+import { UpdateSessionUseCaseHandler } from './domain/movie/updateSessionUseCaseHandler';
+import { WatchMovieUseCaseHandler } from './domain/movie/watchMovieUseCaseHandler';
+import { BuyTicketUseCaseHandler } from './domain/ticket/buyTicketUseCaseHandler';
+import { TicketPort } from './domain/ticket/port/ticketPort';
+import { TicketService } from './domain/ticket/service/ticketService';
 import { FindActorByTokenUseCaseHandler } from './domain/user/findUserByTokenUseCaseHandler';
 import { GetWatchHistoryUseCaseHandler } from './domain/user/getWatchHistoryUseCaseHandler';
 import { UserPort } from './domain/user/port/userPort';
@@ -26,13 +26,13 @@ import { UserService } from './domain/user/service/userService';
 import { SignInUseCaseHandler } from './domain/user/signInUseCaseHandler';
 import { createMongoClient } from './infra/mongodb/createMongoClient';
 import { MongodbMovieAdapter } from './infra/movie/mongodbMovieAdapter';
-import { MongodbSessionAdapter } from './infra/session/mongodbSessionAdapter';
+import { MongodbTicketAdapter } from './infra/session/mongodbTicketAdapter';
 import { MongodbUserAdapter } from './infra/user/mongodbUserAdapter';
 import { InjectionToken } from './injectionToken';
 
 export type Ports = {
   moviePort: MoviePort;
-  sessionPort: SessionPort;
+  ticketPort: TicketPort;
   userPort: UserPort;
 };
 
@@ -68,15 +68,16 @@ export class CompositionRoot {
     const databaseName = process.env.MONGODB_DATABASE ?? 'rexx';
 
     const mongodbMovieAdapter = new MongodbMovieAdapter(mongoClient, databaseName);
-    const mongodbSessionAdapter = new MongodbSessionAdapter(mongoClient, databaseName);
-    await mongodbSessionAdapter.createIndexes();
+    await mongodbMovieAdapter.createIndexes();
+    const mongodbTicketAdapter = new MongodbTicketAdapter(mongoClient, databaseName);
+    await mongodbTicketAdapter.createIndexes();
     const mongodbUserAdapter = new MongodbUserAdapter(mongoClient, databaseName);
     await mongodbUserAdapter.createIndexes();
     await mongodbUserAdapter.createRootUser();
 
     this.bindPorts({
       moviePort: mongodbMovieAdapter,
-      sessionPort: mongodbSessionAdapter,
+      ticketPort: mongodbTicketAdapter,
       userPort: mongodbUserAdapter,
     });
     this.bindServices();
@@ -89,7 +90,7 @@ export class CompositionRoot {
 
   bindPorts(ports: Ports): void {
     this.container.bind<MoviePort>(InjectionToken.MoviePort).toConstantValue(ports.moviePort);
-    this.container.bind<SessionPort>(InjectionToken.SessionPort).toConstantValue(ports.sessionPort);
+    this.container.bind<TicketPort>(InjectionToken.TicketPort).toConstantValue(ports.ticketPort);
     this.container.bind<UserPort>(InjectionToken.UserPort).toConstantValue(ports.userPort);
   }
 
@@ -97,6 +98,10 @@ export class CompositionRoot {
     this.container
       .bind<MovieService>(InjectionToken.MovieService)
       .to(MovieService)
+      .inSingletonScope();
+    this.container
+      .bind<TicketService>(InjectionToken.TicketService)
+      .to(TicketService)
       .inSingletonScope();
     this.container.bind<UserService>(InjectionToken.UserService).to(UserService).inSingletonScope();
   }
@@ -164,10 +169,6 @@ export class CompositionRoot {
     this.container
       .bind<BuyTicketUseCaseHandler>(InjectionToken.BuyTicketUseCaseHandler)
       .to(BuyTicketUseCaseHandler)
-      .inSingletonScope();
-    this.container
-      .bind<FindMovieSessionsUseCaseHandler>(InjectionToken.FindMovieSessionsUseCaseHandler)
-      .to(FindMovieSessionsUseCaseHandler)
       .inSingletonScope();
     this.container
       .bind<WatchMovieUseCaseHandler>(InjectionToken.WatchMovieUseCaseHandler)

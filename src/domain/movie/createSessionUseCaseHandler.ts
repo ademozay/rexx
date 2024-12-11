@@ -3,6 +3,7 @@ import { InjectionToken } from '../../injectionToken';
 import { AccessDeniedError } from '../shared/accessDeniedError';
 import { UseCaseHandler } from '../shared/useCaseHandler';
 import { Session } from './entity/session';
+import { MovieNotFoundError } from './error/movie/movieNotFoundError';
 import { OnlyManagersCanCreateSessionError } from './error/session/onlyManagersCanCreateSessionError';
 import { SessionAlreadyExistsError } from './error/session/sessionAlreadyExistsError';
 import { SessionDateCannotBeInPastError } from './error/session/sessionDateCannotBeInPastError';
@@ -31,20 +32,27 @@ export class CreateSessionUseCaseHandler implements UseCaseHandler<CreateSession
       throw new OnlyManagersCanCreateSessionError();
     }
 
-    const session = Session.create({
-      movieId,
-      sessionDate,
-      timeSlotLabel,
-      roomNumber,
-    });
+    const movie = await this.moviePort.findMovieById(movieId);
+    if (!movie) {
+      throw new MovieNotFoundError(movieId);
+    }
+
+    const session = movie.addSession(
+      Session.create({
+        movieId,
+        sessionDate,
+        timeSlotLabel,
+        roomNumber,
+      }),
+    );
+
+    if (session.hasStarted) {
+      throw new SessionDateCannotBeInPastError(session.sessionDate);
+    }
 
     const sessionExists = await this.moviePort.sessionExists(session);
     if (sessionExists) {
       throw new SessionAlreadyExistsError(movieId, roomNumber, sessionDate, timeSlotLabel);
-    }
-
-    if (session.hasStarted) {
-      throw new SessionDateCannotBeInPastError(session.sessionDate);
     }
 
     return this.moviePort.createSession(session);

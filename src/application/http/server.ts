@@ -1,5 +1,5 @@
 import cors from 'cors';
-import express, { ErrorRequestHandler, Express } from 'express';
+import express, { Express } from 'express';
 import helmet from 'helmet';
 import http from 'http';
 import { BaseContext } from '../../context';
@@ -7,12 +7,13 @@ import { logger } from '../../logger';
 import { createHttpContextMiddlewareCreator } from './context';
 import { AuthController } from './controller/authController';
 import { MovieController } from './controller/movieController';
-import { SessionController } from './controller/sessionController';
+import { TicketController } from './controller/ticketController';
+import { createErrorResponse } from './response';
 
 export type Controllers = {
   authController: AuthController;
   movieController: MovieController;
-  sessionController: SessionController;
+  ticketController: TicketController;
 };
 
 export class Server {
@@ -38,59 +39,81 @@ export class Server {
   }
 
   bootstrap(): void {
-    this.registerHealthCheck();
-    this.registerErrorMiddleware();
+    this.bootstrapMiddlewares();
 
-    const { authController, movieController, sessionController } = this.controllers;
+    const v1 = express.Router();
 
-    this.app.get('/', (_, response) => {
-      response.send('OK');
-    });
+    const auth = this.createAuthRoutes(this.controllers.authController);
+    const movies = this.createMovieRoutes(this.controllers.movieController);
+    const tickets = this.createTicketRoutes(this.controllers.ticketController);
 
+    v1.use('/auth', auth);
+    v1.use('/movies', movies);
+    v1.use('/tickets', tickets);
+
+    this.app.use('/api/v1', v1);
+  }
+
+  private bootstrapMiddlewares(): void {
+    this.app.use(this.createErrorMiddleware());
+    this.app.get('/health', this.createHealthCheckMiddleware());
     this.app.use(createHttpContextMiddlewareCreator(this.baseContext));
-
-    this.app.post('/api/v1/auth/register', authController.registerCustomer.bind(authController));
-    this.app.post(
-      '/api/v1/auth/register-manager',
-      authController.registerManager.bind(authController),
-    );
-    this.app.post('/api/v1/auth/sign-in', authController.signIn.bind(authController));
-
-    this.app.post('/api/v1/movies', movieController.createMovie.bind(movieController));
-    this.app.get('/api/v1/movies', movieController.listMovies.bind(movieController));
-    this.app.put('/api/v1/movies/:id', movieController.updateMovie.bind(movieController));
-    this.app.delete('/api/v1/movies/:id', movieController.deleteMovie.bind(movieController));
-
-    this.app.post('/api/v1/sessions', sessionController.createSession.bind(sessionController));
-    this.app.put('/api/v1/sessions/:id', sessionController.updateSession.bind(sessionController));
-    this.app.delete(
-      '/api/v1/sessions/:id',
-      sessionController.deleteSession.bind(sessionController),
-    );
-    this.app.post(
-      '/api/v1/sessions/:id/tickets',
-      sessionController.buyTicket.bind(sessionController),
-    );
-    this.app.get('/api/v1/watch/:ticketId', sessionController.watchMovie.bind(sessionController));
   }
 
-  private registerHealthCheck(): void {
-    this.app.get('/health', (_, response) => {
+  private createHealthCheckMiddleware(): express.RequestHandler {
+    return (_, response) => {
       response.send('OK');
-    });
+    };
   }
 
-  private registerErrorMiddleware(): void {
+  private createErrorMiddleware(): express.ErrorRequestHandler {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const errorMiddleware: ErrorRequestHandler = (error, _request, response, _next) => {
-      logger.error('🔥 unhandled error:', error);
+    return (error, _request, response, _next) => {
+      logger.error('🔥 http error:', error);
 
-      response.status(500).send({
-        error: 'Internal server error',
-      });
+      response.status(500).send(createErrorResponse('Internal server error'));
     };
+  }
 
-    this.app.use(errorMiddleware);
+  private createAuthRoutes(authController: AuthController): express.Router {
+    const auth = express.Router();
+
+    auth.post('/register/customer', authController.registerCustomer.bind(authController));
+    auth.post('/register/manager', authController.registerManager.bind(authController));
+    auth.post('/sign-in', authController.signIn.bind(authController));
+
+    return auth;
+  }
+
+  private createMovieRoutes(movieController: MovieController): express.Router {
+    const movies = express.Router();
+
+    movies.post('/', movieController.createMovie.bind(movieController));
+    movies.put('/:id', movieController.updateMovie.bind(movieController));
+    movies.delete('/:id', movieController.deleteMovie.bind(movieController));
+    movies.get('/', movieController.listMovies.bind(movieController));
+
+    movies.post('/:movieId/sessions', movieController.createSession.bind(movieController));
+    movies.put(
+      '/:movieId/sessions/:sessionId',
+      movieController.updateSession.bind(movieController),
+    );
+    movies.delete(
+      '/:movieId/sessions/:sessionId',
+      movieController.deleteSession.bind(movieController),
+    );
+
+    movies.get('/watch/:ticketId', movieController.watchMovie.bind(movieController));
+
+    return movies;
+  }
+
+  private createTicketRoutes(ticketController: TicketController): express.Router {
+    const tickets = express.Router();
+
+    tickets.post('/', ticketController.buyTicket.bind(ticketController));
+
+    return tickets;
   }
 
   async start(): Promise<http.Server> {

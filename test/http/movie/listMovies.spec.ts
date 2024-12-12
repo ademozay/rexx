@@ -28,6 +28,7 @@ describe('list movies', () => {
       ports: { userPort, moviePort },
     } = setup;
 
+    // arrange
     const user = await createMockUser(userPort, { role: UserRole.CUSTOMER });
     const token = await signIn(userPort, user);
 
@@ -43,12 +44,12 @@ describe('list movies', () => {
       roomNumber: 1,
     });
 
+    // act
     const response = await makeGetRequest('/api/v1/movies', token);
-    const data = response.getData();
 
-    expect(response.ok).toBeTruthy();
+    // assert
     expect(response.status).toBe(200);
-    expect(data).toEqual([
+    expect(response.data).toEqual([
       {
         id: movie.id,
         name: movie.name.value,

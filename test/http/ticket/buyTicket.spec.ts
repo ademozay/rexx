@@ -30,6 +30,7 @@ describe('buy ticket', () => {
       ports: { userPort, moviePort },
     } = setup;
 
+    // arrange
     const user = await createMockUser(userPort, { role: UserRole.CUSTOMER });
     const token = await signIn(userPort, user);
 
@@ -46,13 +47,12 @@ describe('buy ticket', () => {
       roomNumber: 1,
     });
 
-    const response = await makePostRequest(`/api/v1/sessions/${session.id}/tickets`, {}, token);
+    // act
+    const response = await makePostRequest('/api/v1/tickets', { sessionId: session.id }, token);
 
-    const data = response.getData();
-
-    expect(response.ok).toBeTruthy();
+    // assert
     expect(response.status).toBe(201);
-    expect(data).toEqual({ id: expect.any(String) });
+    expect(response.data).toEqual({ id: expect.any(String) });
   });
 
   it('should return 404 if the session is not found', async () => {
@@ -61,16 +61,15 @@ describe('buy ticket', () => {
       ports: { userPort },
     } = setup;
 
+    // arrange
     const user = await createMockUser(userPort, { role: UserRole.CUSTOMER });
     const token = await signIn(userPort, user);
+    const sessionId = randomUUID();
 
-    const movieId = randomUUID();
-    const response = await makePostRequest(
-      `/api/v1/sessions/${movieId}/tickets`,
-      { sessionId: '123' },
-      token,
-    );
+    // act
+    const response = await makePostRequest('/api/v1/tickets', { sessionId }, token);
 
+    // assert
     expect(response.status).toBe(404);
   });
 
@@ -80,6 +79,7 @@ describe('buy ticket', () => {
       ports: { userPort, moviePort },
     } = setup;
 
+    // arrange
     const user = await createMockUser(userPort, { age: 13, role: UserRole.CUSTOMER });
     const token = await signIn(userPort, user);
 
@@ -96,14 +96,12 @@ describe('buy ticket', () => {
       roomNumber: 1,
     });
 
-    const response = await makePostRequest(
-      `/api/v1/sessions/${session.id}/tickets`,
-      { sessionId: session.id },
-      token,
-    );
+    // act
+    const response = await makePostRequest('/api/v1/tickets', { sessionId: session.id }, token);
 
+    // assert
     expect(response.status).toBe(400);
-    expect(response.getError()).toEqual({
+    expect(response.error).toEqual({
       message: `User is too young to watch this movie: ${user.id}, age restriction: ${movie.ageRestriction}`,
     });
   });
@@ -114,6 +112,7 @@ describe('buy ticket', () => {
       ports: { userPort, moviePort },
     } = setup;
 
+    // arrange
     const user = await createMockUser(userPort, { role: UserRole.CUSTOMER });
     const token = await signIn(userPort, user);
 
@@ -130,15 +129,11 @@ describe('buy ticket', () => {
       roomNumber: 1,
     });
 
-    const response = await makePostRequest(
-      `/api/v1/sessions/${session.id}/tickets`,
-      { sessionId: session.id },
-      token,
-    );
+    // act
+    const response = await makePostRequest('/api/v1/tickets', { sessionId: session.id }, token);
 
+    // assert
     expect(response.status).toBe(400);
-    expect(response.getError()).toEqual({
-      message: `Session already started: ${session.id}`,
-    });
+    expect(response.error).toEqual({ message: `Session already started: ${session.id}` });
   });
 });

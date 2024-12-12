@@ -1,5 +1,6 @@
 import assert from 'assert';
 import request, { Agent } from 'supertest';
+import { ErrorResponse } from '../src/application/http/response';
 import { Server } from '../src/application/http/server';
 import { CompositionRoot, Ports } from '../src/compositionRoot';
 import { IntegrationTestSetupOptions, createIntegrationTestSetup } from './integration';
@@ -7,7 +8,7 @@ import { IntegrationTestSetupOptions, createIntegrationTestSetup } from './integ
 type ResponseHandler<ResponseType> = {
   status: number;
   data: ResponseType;
-  error: { message: string };
+  error: ErrorResponse['error'];
 };
 
 export type HttpTestSetup = {
@@ -62,8 +63,8 @@ export async function createHttpTestSetup(
         return response.body.data;
       },
       get error(): { message: string } {
-        assert(response.body.error);
-        return { message: response.body.error };
+        assert(response.body.error?.message);
+        return { message: response.body.error.message };
       },
     };
   }

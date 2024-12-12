@@ -25,9 +25,11 @@ describe('create movie', () => {
       ports: { userPort },
     } = setup;
 
+    // arrange
     const user = await createMockUser(userPort, { role: UserRole.MANAGER });
     const token = await signIn(userPort, user);
 
+    // act
     const response = await makePostRequest(
       '/api/v1/movies',
       {
@@ -37,11 +39,9 @@ describe('create movie', () => {
       token,
     );
 
-    const data = response.getData();
-
-    expect(response.ok).toBeTruthy();
+    // assert
     expect(response.status).toBe(201);
-    expect(data).toEqual({
+    expect(response.data).toEqual({
       id: expect.any(String),
       name: 'Truman Show',
       ageRestriction: AgeRestriction.PG_7,
@@ -55,9 +55,11 @@ describe('create movie', () => {
       ports: { userPort },
     } = setup;
 
+    // arrange
     const user = await createMockUser(userPort, { role: UserRole.MANAGER });
     const token = await signIn(userPort, user);
 
+    // act
     const response = await makePostRequest(
       '/api/v1/movies',
       {
@@ -67,30 +69,23 @@ describe('create movie', () => {
       token,
     );
 
-    const error = response.getError();
-
-    expect(response.ok).toBeFalsy();
+    // assert
     expect(response.status).toBe(400);
-    expect(error).toEqual({
-      message: 'Movie name cannot be empty',
-    });
+    expect(response.error).toEqual({ message: 'Movie name cannot be empty' });
   });
 
   it('should return 401 when actor is not found', async () => {
     const { makePostRequest } = setup;
 
+    // act
     const response = await makePostRequest('/api/v1/movies', {
       name: 'Truman Show',
       ageRestriction: AgeRestriction.PG_7,
     });
 
-    const error = response.getError();
-
-    expect(response.ok).toBeFalsy();
+    // assert
     expect(response.status).toBe(401);
-    expect(error).toEqual({
-      message: 'Unauthorized',
-    });
+    expect(response.error).toEqual({ message: 'Unauthorized' });
   });
 
   it('should return 403 when actor is not a manager', async () => {
@@ -99,9 +94,11 @@ describe('create movie', () => {
       ports: { userPort },
     } = setup;
 
+    // arrange
     const user = await createMockUser(userPort, { role: UserRole.CUSTOMER });
     const token = await signIn(userPort, user);
 
+    // act
     const response = await makePostRequest(
       '/api/v1/movies',
       {
@@ -111,12 +108,8 @@ describe('create movie', () => {
       token,
     );
 
-    const error = response.getError();
-
-    expect(response.ok).toBeFalsy();
+    // assert
     expect(response.status).toBe(403);
-    expect(error).toEqual({
-      message: 'Only managers can create movies',
-    });
+    expect(response.error).toEqual({ message: 'Only managers can create movies' });
   });
 });

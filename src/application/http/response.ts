@@ -1,7 +1,9 @@
 export type ErrorResponse = {
-  error: string;
+  error: {
+    message: string;
+  };
 };
 
-export function createErrorResponse(error: string): ErrorResponse {
-  return { error };
+export function createErrorResponse(message: string): ErrorResponse {
+  return { error: { message } };
 }

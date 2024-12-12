@@ -27,6 +27,7 @@ describe('update movie', () => {
       ports: { userPort, moviePort },
     } = setup;
 
+    // arrange
     const user = await createMockUser(userPort, { role: UserRole.MANAGER });
     const token = await signIn(userPort, user);
 
@@ -44,11 +45,9 @@ describe('update movie', () => {
       token,
     );
 
-    const data = response.getData();
-
-    expect(response.ok).toBeTruthy();
+    // assert
     expect(response.status).toBe(201);
-    expect(data).toEqual({
+    expect(response.data).toEqual({
       id: movie.id,
       name: 'Prestige',
       ageRestriction: AgeRestriction.PG_13,
@@ -62,6 +61,7 @@ describe('update movie', () => {
       ports: { userPort, moviePort },
     } = setup;
 
+    // arrange
     const user = await createMockUser(userPort, { role: UserRole.MANAGER });
     const token = await signIn(userPort, user);
 
@@ -70,6 +70,7 @@ describe('update movie', () => {
       ageRestriction: AgeRestriction.PG_13,
     });
 
+    // act
     const response = await makePutRequest(
       `/api/v1/movies/${movie.id}`,
       {
@@ -79,42 +80,9 @@ describe('update movie', () => {
       token,
     );
 
-    const error = response.getError();
-
-    expect(response.ok).toBeFalsy();
+    // assert
     expect(response.status).toBe(400);
-    expect(error).toEqual({
-      message: 'Movie name cannot be empty',
-    });
-  });
-
-  it('should return 404 when movie is not found', async () => {
-    const {
-      makePutRequest,
-      ports: { userPort },
-    } = setup;
-
-    const user = await createMockUser(userPort, { role: UserRole.MANAGER });
-    const token = await signIn(userPort, user);
-
-    const movieId = randomUUID();
-
-    const response = await makePutRequest(
-      `/api/v1/movies/${movieId}`,
-      {
-        name: 'Prestige',
-        ageRestriction: AgeRestriction.PG_13,
-      },
-      token,
-    );
-
-    const error = response.getError();
-
-    expect(response.ok).toBeFalsy();
-    expect(response.status).toBe(404);
-    expect(error).toEqual({
-      message: `Movie not found: ${movieId}`,
-    });
+    expect(response.error).toEqual({ message: 'Movie name cannot be empty' });
   });
 
   it('should return 401 when actor is not found', async () => {
@@ -123,23 +91,21 @@ describe('update movie', () => {
       ports: { moviePort },
     } = setup;
 
+    // arrange
     const movie = await createMockMovie(moviePort, {
       name: 'Prestige',
       ageRestriction: AgeRestriction.PG_13,
     });
 
+    // act
     const response = await makePutRequest(`/api/v1/movies/${movie.id}`, {
       name: 'Prestige',
       ageRestriction: AgeRestriction.PG_13,
     });
 
-    const error = response.getError();
-
-    expect(response.ok).toBeFalsy();
+    // assert
     expect(response.status).toBe(401);
-    expect(error).toEqual({
-      message: 'Unauthorized',
-    });
+    expect(response.error).toEqual({ message: 'Unauthorized' });
   });
 
   it('should return 403 when actor is not a manager', async () => {
@@ -148,6 +114,7 @@ describe('update movie', () => {
       ports: { userPort, moviePort },
     } = setup;
 
+    // arrange
     const user = await createMockUser(userPort, { role: UserRole.CUSTOMER });
     const token = await signIn(userPort, user);
 
@@ -156,6 +123,7 @@ describe('update movie', () => {
       ageRestriction: AgeRestriction.PG_13,
     });
 
+    // act
     const response = await makePutRequest(
       `/api/v1/movies/${movie.id}`,
       {
@@ -165,12 +133,35 @@ describe('update movie', () => {
       token,
     );
 
-    const error = response.getError();
-
-    expect(response.ok).toBeFalsy();
+    // assert
     expect(response.status).toBe(403);
-    expect(error).toEqual({
-      message: 'Only managers can update movies',
-    });
+    expect(response.error).toEqual({ message: 'Only managers can update movies' });
+  });
+
+  it('should return 404 when movie is not found', async () => {
+    const {
+      makePutRequest,
+      ports: { userPort },
+    } = setup;
+
+    // arrange
+    const user = await createMockUser(userPort, { role: UserRole.MANAGER });
+    const token = await signIn(userPort, user);
+
+    const movieId = randomUUID();
+
+    // act
+    const response = await makePutRequest(
+      `/api/v1/movies/${movieId}`,
+      {
+        name: 'Prestige',
+        ageRestriction: AgeRestriction.PG_13,
+      },
+      token,
+    );
+
+    // assert
+    expect(response.status).toBe(404);
+    expect(response.error).toEqual({ message: `Movie not found: ${movieId}` });
   });
 });

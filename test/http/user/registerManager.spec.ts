@@ -24,10 +24,13 @@ describe('register manager', () => {
       ports: { userPort },
     } = setup;
 
+    // arrange
     const user = await createMockUser(userPort, { role: UserRole.MANAGER });
     const token = await signIn(userPort, user);
+
+    // act
     const response = await makePostRequest(
-      '/api/v1/auth/register-manager',
+      '/api/v1/auth/register/manager',
       {
         email: 'another-user@rexx.com',
         password: 'password',
@@ -37,7 +40,8 @@ describe('register manager', () => {
       token,
     );
 
-    expect(response.ok).toBeTruthy();
+    // assert
+    expect(response.status).toBe(201);
   });
 
   it('should return 500 when the email is already in use', async () => {
@@ -46,11 +50,13 @@ describe('register manager', () => {
       ports: { userPort },
     } = setup;
 
+    // arrange
     const user = await createMockUser(userPort, { role: UserRole.MANAGER });
     const token = await signIn(userPort, user);
 
+    // act
     const response = await makePostRequest(
-      '/api/v1/auth/register-manager ',
+      '/api/v1/auth/register/manager ',
       {
         email: user.email.value,
         password: 'anotherPassword',
@@ -59,11 +65,10 @@ describe('register manager', () => {
       },
       token,
     );
-    const error = response.getError();
 
-    expect(response.ok).toBeFalsy();
+    // assert
     expect(response.status).toBe(409);
-    expect(error).toEqual({
+    expect(response.error).toEqual({
       message: `Email is already in use: ${user.email.value}`,
     });
   });
@@ -74,11 +79,13 @@ describe('register manager', () => {
       ports: { userPort },
     } = setup;
 
+    // arrange
     const user = await createMockUser(userPort, { role: UserRole.MANAGER });
     const token = await signIn(userPort, user);
 
+    // act
     const response = await makePostRequest(
-      '/api/v1/auth/register-manager',
+      '/api/v1/auth/register/manager',
       {
         email: 'manager@rexx.com',
         password: 'abc',
@@ -88,8 +95,9 @@ describe('register manager', () => {
       token,
     );
 
+    // assert
     expect(response.status).toBe(400);
-    expect(response.getError()).toEqual({
+    expect(response.error).toEqual({
       message: 'Invalid password. Password must be at least 8 characters long',
     });
   });
@@ -100,11 +108,13 @@ describe('register manager', () => {
       ports: { userPort },
     } = setup;
 
+    // arrange
     const user = await createMockUser(userPort, { role: UserRole.CUSTOMER });
     const token = await signIn(userPort, user);
 
+    // act
     const response = await makePostRequest(
-      '/api/v1/auth/register-manager',
+      '/api/v1/auth/register/manager',
       {
         email: 'john.doe@rexx.com',
         password: 'password',
@@ -114,11 +124,9 @@ describe('register manager', () => {
       token,
     );
 
-    const error = response.getError();
-
-    expect(response.ok).toBeFalsy();
+    // assert
     expect(response.status).toBe(401);
-    expect(error).toEqual({
+    expect(response.error).toEqual({
       message: 'Only managers can register managers',
     });
   });
@@ -126,16 +134,17 @@ describe('register manager', () => {
   it('should return 401 when actor is not found', async () => {
     const { makePostRequest } = setup;
 
-    const response = await makePostRequest('/api/v1/auth/register-manager', {
+    // act
+    const response = await makePostRequest('/api/v1/auth/register/manager', {
       email: 'john.doe@rexx.com',
       password: 'password',
       passwordConfirmation: 'password',
       age: 20,
     });
 
-    expect(response.ok).toBeFalsy();
+    // assert
     expect(response.status).toBe(401);
-    expect(response.getError()).toEqual({
+    expect(response.error).toEqual({
       message: 'Unauthorized',
     });
   });

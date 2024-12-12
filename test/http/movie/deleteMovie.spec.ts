@@ -27,6 +27,7 @@ describe('delete movie', () => {
       ports: { userPort, moviePort },
     } = setup;
 
+    // arrange
     const user = await createMockUser(userPort, { role: UserRole.MANAGER });
     const token = await signIn(userPort, user);
 
@@ -35,47 +36,25 @@ describe('delete movie', () => {
       ageRestriction: AgeRestriction.PG_13,
     });
 
+    // act
     const response = await makeDeleteRequest(`/api/v1/movies/${movie.id}`, token);
 
-    expect(response.ok).toBeTruthy();
+    // assert
     expect(response.status).toBe(204);
-  });
-
-  it('should return 404 when movie is not found', async () => {
-    const {
-      makeDeleteRequest,
-      ports: { userPort },
-    } = setup;
-
-    const user = await createMockUser(userPort, { role: UserRole.MANAGER });
-    const token = await signIn(userPort, user);
-
-    const movieId = randomUUID();
-
-    const response = await makeDeleteRequest(`/api/v1/movies/${movieId}`, token);
-
-    const error = response.getError();
-
-    expect(response.ok).toBeFalsy();
-    expect(response.status).toBe(404);
-    expect(error).toEqual({
-      message: `Movie not found: ${movieId}`,
-    });
   });
 
   it('should return 401 when actor is not found', async () => {
     const { makeDeleteRequest } = setup;
 
+    // arrange
     const movieId = randomUUID();
+
+    // act
     const response = await makeDeleteRequest(`/api/v1/movies/${movieId}`);
 
-    const error = response.getError();
-
-    expect(response.ok).toBeFalsy();
+    // assert
     expect(response.status).toBe(401);
-    expect(error).toEqual({
-      message: 'Unauthorized',
-    });
+    expect(response.error).toEqual({ message: 'Unauthorized' });
   });
 
   it('should return 403 when actor is not a manager', async () => {
@@ -84,6 +63,7 @@ describe('delete movie', () => {
       ports: { userPort, moviePort },
     } = setup;
 
+    // arrange
     const user = await createMockUser(userPort, { role: UserRole.CUSTOMER });
     const token = await signIn(userPort, user);
 
@@ -92,14 +72,31 @@ describe('delete movie', () => {
       ageRestriction: AgeRestriction.PG_13,
     });
 
+    // act
     const response = await makeDeleteRequest(`/api/v1/movies/${movie.id}`, token);
 
-    const error = response.getError();
-
-    expect(response.ok).toBeFalsy();
+    // assert
     expect(response.status).toBe(403);
-    expect(error).toEqual({
-      message: 'Only managers can delete movies',
-    });
+    expect(response.error).toEqual({ message: 'Only managers can delete movies' });
+  });
+
+  it('should return 404 when movie is not found', async () => {
+    const {
+      makeDeleteRequest,
+      ports: { userPort },
+    } = setup;
+
+    // arrange
+    const user = await createMockUser(userPort, { role: UserRole.MANAGER });
+    const token = await signIn(userPort, user);
+
+    const movieId = randomUUID();
+
+    // act
+    const response = await makeDeleteRequest(`/api/v1/movies/${movieId}`, token);
+
+    // assert
+    expect(response.status).toBe(404);
+    expect(response.error).toEqual({ message: `Movie not found: ${movieId}` });
   });
 });

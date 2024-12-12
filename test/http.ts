@@ -4,11 +4,10 @@ import { Server } from '../src/application/http/server';
 import { CompositionRoot, Ports } from '../src/compositionRoot';
 import { IntegrationTestSetupOptions, createIntegrationTestSetup } from './integration';
 
-export type ResponseHandler<ResponseType> = {
-  ok: boolean;
+type ResponseHandler<ResponseType> = {
   status: number;
-  getData(): ResponseType;
-  getError(): { message: string };
+  data: ResponseType;
+  error: { message: string };
 };
 
 export type HttpTestSetup = {
@@ -58,11 +57,11 @@ export async function createHttpTestSetup(
     return {
       ok: response.ok,
       status: response.status,
-      getData(): ResponseType {
+      get data(): ResponseType {
         assert(response.body.data);
         return response.body.data;
       },
-      getError(): { message: string } {
+      get error(): { message: string } {
         assert(response.body.error);
         return { message: response.body.error };
       },

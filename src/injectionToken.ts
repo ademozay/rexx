@@ -28,5 +28,5 @@ export enum InjectionToken {
 
   AuthController = 'AuthController',
   MovieController = 'MovieController',
-  SessionController = 'SessionController',
+  TicketController = 'TicketController',
 }

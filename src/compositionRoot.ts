@@ -1,7 +1,7 @@
 import { Container } from 'inversify';
 import { AuthController } from './application/http/controller/authController';
 import { MovieController } from './application/http/controller/movieController';
-import { SessionController } from './application/http/controller/sessionController';
+import { TicketController } from './application/http/controller/ticketController';
 import { Controllers } from './application/http/server';
 import { BaseContext, makeBaseContext } from './context';
 import { CreateMovieUseCaseHandler } from './domain/movie/createMovieUseCaseHandler';
@@ -31,9 +31,9 @@ import { MongodbUserAdapter } from './infra/user/mongodbUserAdapter';
 import { InjectionToken } from './injectionToken';
 
 export type Ports = {
+  userPort: UserPort;
   moviePort: MoviePort;
   ticketPort: TicketPort;
-  userPort: UserPort;
 };
 
 export class CompositionRoot {
@@ -55,7 +55,7 @@ export class CompositionRoot {
     return {
       authController: this.container.get<AuthController>(InjectionToken.AuthController),
       movieController: this.container.get<MovieController>(InjectionToken.MovieController),
-      sessionController: this.container.get<SessionController>(InjectionToken.SessionController),
+      ticketController: this.container.get<TicketController>(InjectionToken.TicketController),
     };
   }
 
@@ -116,8 +116,8 @@ export class CompositionRoot {
       .to(MovieController)
       .inSingletonScope();
     this.container
-      .bind<SessionController>(InjectionToken.SessionController)
-      .to(SessionController)
+      .bind<TicketController>(InjectionToken.TicketController)
+      .to(TicketController)
       .inSingletonScope();
   }
 

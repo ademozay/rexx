@@ -3,8 +3,11 @@ import { InjectionToken } from '../../injectionToken';
 import { AccessDeniedError } from '../shared/accessDeniedError';
 import { UseCaseHandler } from '../shared/useCaseHandler';
 import { Session } from './entity/session';
+import { MovieNotFoundError } from './error/movie/movieNotFoundError';
 import { OnlyManagersCanUpdateSessionError } from './error/session/onlyManagersCanUpdateSessionError';
 import { SessionAlreadyStartedError } from './error/session/sessionAlreadyStartedError';
+import { SessionDateCannotBeInPastError } from './error/session/sessionDateCannotBeInPastError';
+import { SessionExpiredError } from './error/session/sessionExpiredError';
 import { SessionNotFoundError } from './error/session/sessionNotFoundError';
 import { MoviePort } from './port/moviePort';
 import { UpdateSessionUseCase } from './useCase/updateSessionUseCase';
@@ -37,8 +40,17 @@ export class UpdateSessionUseCaseHandler implements UseCaseHandler<UpdateSession
       throw new SessionNotFoundError(sessionId);
     }
 
+    if (existingSession.hasFinished) {
+      throw new SessionExpiredError(sessionId);
+    }
+
     if (existingSession.hasStarted) {
       throw new SessionAlreadyStartedError(sessionId);
+    }
+
+    const movie = await this.moviePort.findMovieById(movieId);
+    if (!movie) {
+      throw new MovieNotFoundError(movieId);
     }
 
     const session = Session.update(
@@ -50,6 +62,11 @@ export class UpdateSessionUseCaseHandler implements UseCaseHandler<UpdateSession
       },
       sessionId,
     );
+
+    if (session.hasStarted) {
+      throw new SessionDateCannotBeInPastError(session.sessionDate);
+    }
+
     return this.moviePort.updateSession(session);
   }
 }

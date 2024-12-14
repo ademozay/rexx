@@ -1,28 +1,44 @@
 # rexx
 
-`rexx` is a Movie Management System built using Node.js with a frameworkless perspective.
+`rexx` is a Cinema Management System built using Node.js and framework-agnostic design.
+
+This is a concept project and a learning environment where I'm experimenting with Domain-Driven Design (DDD), Hexagonal Architecture, and advanced software engineering practices. 
+
+## Getting Started
+
+Follow these instructions to set up and run the project on your local machine for development and testing purposes.
+
+## Prerequisites
+
+Before you begin, ensure you have following installed on your system:
+
+- **Node.js**
+- **NPM**
+- **Docker** (for MongoDB setup)
+- **Docker Compose** (for managing containers)
 
 ## Installation
 
-First, create a `.env` file by copying the `.env.example` file.
+Checkout the project from GitHub.
+```bash
+git clone git@github.com:ademozay/rexx.git
+cd rexx
+```
 
-You should have mongodb up and running on your machine. If not, you can run it with docker compose.
-
-
+Create a `.env` file by copying the `.env.example` file..
 ```bash
 cp .env.example .env
 ```
 
-Then, run the following command to install the dependencies:
-
+Install the dependencies.
 ```bash
 npm install
 ```
 
-## Running linter
-
+A MongoDB instance is required to run the application. You can run the following command to start the MongoDB container.
 ```bash
-npm run lint
+# Run mongodb-setup only once. No need to run it again.
+docker compose up mongodb mongodb-setup -d
 ```
 
 ## Running the application
@@ -31,24 +47,25 @@ npm run lint
 npm run start
 ```
 
-## Running e2e tests
+## Testing
 
-```bash
-npm run test:e2e
-```
-
-## Running unit tests
-
-*current unit tests are not implemented*
+### Unit Tests
 
 ```bash
 npm run test:unit
 ```
 
-## Running with Docker Compose
+### E2E Tests
+
+A MongoDB instance is required to run the tests. You can run the following command to start the MongoDB container for testing.
 
 ```bash
-docker compose up -d
+# Run mongodb-test-setup only once. No need to run it again.
+docker compose up mongodb-test mongodb-test-setup -d
 ```
 
-The server is now running on port 8080 and you can use postman collection to check out the API.
+You can run the tests with the following command.
+
+```bash
+npm run test:e2e
+```

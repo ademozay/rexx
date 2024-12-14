@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TimeSlotLabel } from '../../../../domain/movie/valueObjects/timeSlot';
+import { TimeSlotLabel } from '../../../domain/movie/valueObjects/timeSlot';
 
 export const sessionSchema = z.object({
   sessionDate: z.string({ message: 'Missing session date' }),

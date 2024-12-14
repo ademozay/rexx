@@ -8,10 +8,10 @@ import { RegisterCustomerUseCase } from '../../../domain/user/useCase/registerCu
 import { RegisterManagerUseCase } from '../../../domain/user/useCase/registerManagerUseCase';
 import { SignInUseCase } from '../../../domain/user/useCase/signInUseCase';
 import { logger } from '../../../logger';
+import { RegisterCustomerBody } from '../../schema/user/registerCustomer';
+import { RegisterManagerBody } from '../../schema/user/registerManager';
+import { SignInBody } from '../../schema/user/signIn';
 import { createErrorResponse } from '../response';
-import { RegisterCustomerBody } from '../schema/user/registerCustomer';
-import { RegisterManagerBody } from '../schema/user/registerManager';
-import { SignInBody } from '../schema/user/signIn';
 
 @injectable()
 export class AuthController {

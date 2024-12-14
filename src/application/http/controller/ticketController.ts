@@ -6,9 +6,9 @@ import { SessionNotFoundError } from '../../../domain/movie/error/session/sessio
 import { TicketAlreadySoldError } from '../../../domain/ticket/error/ticketAlreadySoldError';
 import { UserTooYoungError } from '../../../domain/ticket/error/userTooYoungError';
 import { logger } from '../../../logger';
+import { BuyTicketBody } from '../../schema/ticket/buyTicket';
 import { TicketMapper } from '../mapper/ticketMapper';
 import { createErrorResponse } from '../response';
-import { BuyTicketBody } from '../schema/ticket/buyTicket';
 
 @injectable()
 export class TicketController {

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AgeRestriction } from '../../../../domain/movie/entity/ageRestriction';
+import { AgeRestriction } from '../../../domain/movie/entity/ageRestriction';
 
 export const movieSchema = z.object({
   name: z.string({ message: 'Missing name' }),

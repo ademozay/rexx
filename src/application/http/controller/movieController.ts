@@ -21,16 +21,16 @@ import { TicketAlreadyUsedError } from '../../../domain/ticket/error/ticketAlrea
 import { TicketNotFoundError } from '../../../domain/ticket/error/ticketNotFoundError';
 import { TicketUserMismatchError } from '../../../domain/ticket/error/ticketUserMismatchError';
 import { logger } from '../../../logger';
+import { CreateMovieBody } from '../../schema/movie/createMovie';
+import { CreateSessionBody, CreateSessionParams } from '../../schema/movie/createSession';
+import { DeleteMovieParams } from '../../schema/movie/deleteMovie';
+import { DeleteSessionParams } from '../../schema/movie/deleteSession';
+import { UpdateMovieBody, UpdateMovieParams } from '../../schema/movie/updateMovie';
+import { UpdateSessionBody, UpdateSessionParams } from '../../schema/movie/updateSession';
+import { WatchMovieParams } from '../../schema/movie/watchMovie';
 import { MovieMapper } from '../mapper/movieMapper';
 import { SessionMapper } from '../mapper/sessionMapper';
 import { createErrorResponse } from '../response';
-import { CreateMovieBody } from '../schema/movie/createMovie';
-import { CreateSessionBody, CreateSessionParams } from '../schema/movie/createSession';
-import { DeleteMovieParams } from '../schema/movie/deleteMovie';
-import { DeleteSessionParams } from '../schema/movie/deleteSession';
-import { UpdateMovieBody, UpdateMovieParams } from '../schema/movie/updateMovie';
-import { UpdateSessionBody, UpdateSessionParams } from '../schema/movie/updateSession';
-import { WatchMovieParams } from '../schema/movie/watchMovie';
 
 @injectable()
 export class MovieController {

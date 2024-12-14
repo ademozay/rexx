@@ -97,9 +97,14 @@ describe('register manager', () => {
 
     // assert
     expect(response.status).toBe(400);
-    expect(response.error).toEqual({
-      message: 'Invalid password. Password must be at least 8 characters long',
-    });
+    expect(response.validationErrors).toMatchObject(
+      expect.arrayContaining([
+        {
+          field: 'password',
+          message: 'Password must be at least 8 characters long',
+        },
+      ]),
+    );
   });
 
   it('should return 401 when actor is not a manager', async () => {

@@ -35,6 +35,7 @@ describe('register customer', () => {
   it('should return 400 when the password is invalid', async () => {
     const { makePostRequest } = setup;
 
+    // act
     const response = await makePostRequest('/api/v1/auth/register/customer', {
       email: 'john.doe@rexx.com',
       password: 'rexx',
@@ -44,9 +45,14 @@ describe('register customer', () => {
 
     // assert
     expect(response.status).toBe(400);
-    expect(response.error).toEqual({
-      message: 'Invalid password. Password must be at least 8 characters long',
-    });
+    expect(response.validationErrors).toMatchObject(
+      expect.arrayContaining([
+        {
+          field: 'password',
+          message: 'Password must be at least 8 characters long',
+        },
+      ]),
+    );
   });
 
   it('should return 409 when the email is already in use', async () => {

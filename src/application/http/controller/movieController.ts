@@ -24,27 +24,27 @@ import { logger } from '../../../logger';
 import { MovieMapper } from '../mapper/movieMapper';
 import { SessionMapper } from '../mapper/sessionMapper';
 import { createErrorResponse } from '../response';
+import { CreateMovieBody } from '../schema/movie/createMovie';
+import { CreateSessionBody, CreateSessionParams } from '../schema/movie/createSession';
+import { DeleteMovieParams } from '../schema/movie/deleteMovie';
+import { DeleteSessionParams } from '../schema/movie/deleteSession';
+import { UpdateMovieBody, UpdateMovieParams } from '../schema/movie/updateMovie';
+import { UpdateSessionBody, UpdateSessionParams } from '../schema/movie/updateSession';
+import { WatchMovieParams } from '../schema/movie/watchMovie';
 
 @injectable()
 export class MovieController {
-  async createMovie(request: Request, response: Response): Promise<void> {
+  async createMovie(
+    request: Request<unknown, unknown, CreateMovieBody>,
+    response: Response,
+  ): Promise<void> {
     const { actor } = response.locals.httpContext;
     if (!actor) {
       response.status(401).json(createErrorResponse('Unauthorized'));
       return;
     }
 
-    const movieName = request.body.name;
-    if (!movieName) {
-      response.status(400).json(createErrorResponse('missing name'));
-      return;
-    }
-
-    const ageRestriction = request.body.ageRestriction;
-    if (!ageRestriction) {
-      response.status(400).json(createErrorResponse('missing age restriction'));
-      return;
-    }
+    const { name, ageRestriction } = request.body;
 
     const {
       useCases: { createMovieUseCaseHandler },
@@ -53,7 +53,7 @@ export class MovieController {
     try {
       const movie = await createMovieUseCaseHandler.handle({
         actor,
-        movieName,
+        movieName: name,
         ageRestriction: AgeRestrictionMapper.toDomain(ageRestriction),
       });
 
@@ -77,30 +77,18 @@ export class MovieController {
     }
   }
 
-  async updateMovie(request: Request, response: Response): Promise<void> {
+  async updateMovie(
+    request: Request<UpdateMovieParams, unknown, UpdateMovieBody>,
+    response: Response,
+  ): Promise<void> {
     const { actor } = response.locals.httpContext;
     if (!actor) {
       response.status(401).json(createErrorResponse('Unauthorized'));
       return;
     }
 
-    const movieId = request.params.id;
-    if (!movieId) {
-      response.status(400).json(createErrorResponse('missing movie id'));
-      return;
-    }
-
-    const movieName = request.body.name;
-    if (!movieName) {
-      response.status(400).json(createErrorResponse('missing name'));
-      return;
-    }
-
-    const ageRestriction = request.body.ageRestriction;
-    if (!ageRestriction) {
-      response.status(400).json(createErrorResponse('missing age restriction'));
-      return;
-    }
+    const { movieId } = request.params;
+    const { name, ageRestriction } = request.body;
 
     const {
       useCases: { updateMovieUseCaseHandler },
@@ -110,7 +98,7 @@ export class MovieController {
       const movie = await updateMovieUseCaseHandler.handle({
         actor,
         movieId,
-        movieName,
+        movieName: name,
         ageRestriction: AgeRestrictionMapper.toDomain(ageRestriction),
       });
 
@@ -141,18 +129,14 @@ export class MovieController {
     }
   }
 
-  async deleteMovie(request: Request, response: Response): Promise<void> {
+  async deleteMovie(request: Request<DeleteMovieParams>, response: Response): Promise<void> {
     const { actor } = response.locals.httpContext;
     if (!actor) {
       response.status(401).json(createErrorResponse('Unauthorized'));
       return;
     }
 
-    const movieId = request.params.id;
-    if (!movieId) {
-      response.status(400).json(createErrorResponse('missing movie id'));
-      return;
-    }
+    const { movieId } = request.params;
 
     const {
       useCases: { deleteMovieUseCaseHandler },
@@ -211,36 +195,18 @@ export class MovieController {
     }
   }
 
-  async createSession(request: Request, response: Response): Promise<void> {
+  async createSession(
+    request: Request<CreateSessionParams, unknown, CreateSessionBody>,
+    response: Response,
+  ): Promise<void> {
     const { actor } = response.locals.httpContext;
     if (!actor) {
       response.status(401).json(createErrorResponse('Unauthorized'));
       return;
     }
 
-    const movieId = request.params.movieId;
-    if (!movieId) {
-      response.status(400).json(createErrorResponse('missing movie id'));
-      return;
-    }
-
-    const sessionDate = request.body.sessionDate;
-    if (!sessionDate) {
-      response.status(400).json(createErrorResponse('missing session date'));
-      return;
-    }
-
-    const timeSlotLabel = request.body.timeSlotLabel;
-    if (!timeSlotLabel) {
-      response.status(400).json(createErrorResponse('missing time slot label'));
-      return;
-    }
-
-    const roomNumber = request.body.roomNumber;
-    if (!roomNumber) {
-      response.status(400).json(createErrorResponse('missing room number'));
-      return;
-    }
+    const { movieId } = request.params;
+    const { sessionDate, timeSlotLabel, roomNumber } = request.body;
 
     const {
       useCases: { createSessionUseCaseHandler },
@@ -284,42 +250,18 @@ export class MovieController {
     }
   }
 
-  async updateSession(request: Request, response: Response): Promise<void> {
+  async updateSession(
+    request: Request<UpdateSessionParams, unknown, UpdateSessionBody>,
+    response: Response,
+  ): Promise<void> {
     const { actor } = response.locals.httpContext;
     if (!actor) {
       response.status(401).json(createErrorResponse('Unauthorized'));
       return;
     }
 
-    const sessionId = request.params.sessionId;
-    if (!sessionId) {
-      response.status(400).json(createErrorResponse('missing session id'));
-      return;
-    }
-
-    const movieId = request.params.movieId;
-    if (!movieId) {
-      response.status(400).json(createErrorResponse('missing movie id'));
-      return;
-    }
-
-    const sessionDate = request.body.sessionDate;
-    if (!sessionDate) {
-      response.status(400).json(createErrorResponse('missing session date'));
-      return;
-    }
-
-    const timeSlotLabel = request.body.timeSlotLabel;
-    if (!timeSlotLabel) {
-      response.status(400).json(createErrorResponse('missing time slot label'));
-      return;
-    }
-
-    const roomNumber = request.body.roomNumber;
-    if (!roomNumber) {
-      response.status(400).json(createErrorResponse('missing room number'));
-      return;
-    }
+    const { movieId, sessionId } = request.params;
+    const { sessionDate, timeSlotLabel, roomNumber } = request.body;
 
     const {
       useCases: { updateSessionUseCaseHandler },
@@ -374,18 +316,14 @@ export class MovieController {
     }
   }
 
-  async deleteSession(request: Request, response: Response): Promise<void> {
+  async deleteSession(request: Request<DeleteSessionParams>, response: Response): Promise<void> {
     const { actor } = response.locals.httpContext;
     if (!actor) {
       response.status(401).json(createErrorResponse('Unauthorized'));
       return;
     }
 
-    const sessionId = request.params.sessionId;
-    if (!sessionId) {
-      response.status(400).json(createErrorResponse('missing session id'));
-      return;
-    }
+    const { sessionId } = request.params;
 
     const {
       useCases: { deleteSessionUseCaseHandler },
@@ -419,18 +357,14 @@ export class MovieController {
     }
   }
 
-  async watchMovie(request: Request, response: Response): Promise<void> {
+  async watchMovie(request: Request<WatchMovieParams>, response: Response): Promise<void> {
     const { actor } = response.locals.httpContext;
     if (!actor) {
       response.status(401).json(createErrorResponse('Unauthorized'));
       return;
     }
 
-    const ticketId = request.params.ticketId;
-    if (!ticketId) {
-      response.status(400).json(createErrorResponse('missing ticket id'));
-      return;
-    }
+    const { ticketId } = request.params;
 
     const {
       useCases: { watchMovieUseCaseHandler },

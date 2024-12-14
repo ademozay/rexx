@@ -8,21 +8,18 @@ import { UserTooYoungError } from '../../../domain/ticket/error/userTooYoungErro
 import { logger } from '../../../logger';
 import { TicketMapper } from '../mapper/ticketMapper';
 import { createErrorResponse } from '../response';
+import { BuyTicketBody } from '../schema/ticket/buyTicket';
 
 @injectable()
 export class TicketController {
-  async buyTicket(request: Request, response: Response): Promise<void> {
+  async buyTicket(request: Request<{}, {}, BuyTicketBody>, response: Response): Promise<void> {
     const { actor } = response.locals.httpContext;
     if (!actor) {
       response.status(401).json(createErrorResponse('Unauthorized'));
       return;
     }
 
-    const sessionId = request.body.sessionId;
-    if (!sessionId) {
-      response.status(400).json(createErrorResponse('missing session id'));
-      return;
-    }
+    const { sessionId } = request.body;
 
     const {
       useCases: { buyTicketUseCaseHandler },
@@ -38,9 +35,7 @@ export class TicketController {
         data: TicketMapper.toResponse(ticket),
       });
     } catch (error) {
-      // TODO: we should handle each domain error here
-      // and return respective http status code and localized response message
-
+      // TODO: we should use i18n to return localized response message for each domain error
       if (error instanceof TicketAlreadySoldError) {
         response.status(400).json(createErrorResponse(error.message));
         return;

@@ -8,7 +8,19 @@ import { createHttpContextMiddlewareCreator } from './context';
 import { AuthController } from './controller/authController';
 import { MovieController } from './controller/movieController';
 import { TicketController } from './controller/ticketController';
+import { createRequestValidatorMiddleware } from './middleware/requestValidator';
 import { createErrorResponse } from './response';
+import { createMovieSchema } from './schema/movie/createMovie';
+import { createSessionSchema } from './schema/movie/createSession';
+import { deleteMovieSchema } from './schema/movie/deleteMovie';
+import { deleteSessionSchema } from './schema/movie/deleteSession';
+import { updateMovieSchema } from './schema/movie/updateMovie';
+import { updateSessionSchema } from './schema/movie/updateSession';
+import { watchMovieSchema } from './schema/movie/watchMovie';
+import { buyTicketSchema } from './schema/ticket/buyTicket';
+import { registerCustomerSchema } from './schema/user/registerCustomer';
+import { registerManagerSchema } from './schema/user/registerManager';
+import { signInSchema } from './schema/user/signIn';
 
 export type Controllers = {
   authController: AuthController;
@@ -78,9 +90,21 @@ export class Server {
   private createAuthRoutes(authController: AuthController): express.Router {
     const auth = express.Router();
 
-    auth.post('/register/customer', authController.registerCustomer.bind(authController));
-    auth.post('/register/manager', authController.registerManager.bind(authController));
-    auth.post('/sign-in', authController.signIn.bind(authController));
+    auth.post(
+      '/register/customer',
+      createRequestValidatorMiddleware(registerCustomerSchema),
+      authController.registerCustomer.bind(authController),
+    );
+    auth.post(
+      '/register/manager',
+      createRequestValidatorMiddleware(registerManagerSchema),
+      authController.registerManager.bind(authController),
+    );
+    auth.post(
+      '/sign-in',
+      createRequestValidatorMiddleware(signInSchema),
+      authController.signIn.bind(authController),
+    );
 
     return auth;
   }
@@ -88,22 +112,44 @@ export class Server {
   private createMovieRoutes(movieController: MovieController): express.Router {
     const movies = express.Router();
 
-    movies.post('/', movieController.createMovie.bind(movieController));
-    movies.put('/:id', movieController.updateMovie.bind(movieController));
-    movies.delete('/:id', movieController.deleteMovie.bind(movieController));
+    movies.post(
+      '/',
+      createRequestValidatorMiddleware(createMovieSchema),
+      movieController.createMovie.bind(movieController),
+    );
+    movies.put(
+      '/:movieId',
+      createRequestValidatorMiddleware(updateMovieSchema),
+      movieController.updateMovie.bind(movieController),
+    );
+    movies.delete(
+      '/:movieId',
+      createRequestValidatorMiddleware(deleteMovieSchema),
+      movieController.deleteMovie.bind(movieController),
+    );
     movies.get('/', movieController.listMovies.bind(movieController));
 
-    movies.post('/:movieId/sessions', movieController.createSession.bind(movieController));
+    movies.post(
+      '/:movieId/sessions',
+      createRequestValidatorMiddleware(createSessionSchema),
+      movieController.createSession.bind(movieController),
+    );
     movies.put(
       '/:movieId/sessions/:sessionId',
+      createRequestValidatorMiddleware(updateSessionSchema),
       movieController.updateSession.bind(movieController),
     );
     movies.delete(
       '/:movieId/sessions/:sessionId',
+      createRequestValidatorMiddleware(deleteSessionSchema),
       movieController.deleteSession.bind(movieController),
     );
 
-    movies.get('/watch/:ticketId', movieController.watchMovie.bind(movieController));
+    movies.get(
+      '/watch/:ticketId',
+      createRequestValidatorMiddleware(watchMovieSchema),
+      movieController.watchMovie.bind(movieController),
+    );
 
     return movies;
   }
@@ -111,7 +157,11 @@ export class Server {
   private createTicketRoutes(ticketController: TicketController): express.Router {
     const tickets = express.Router();
 
-    tickets.post('/', ticketController.buyTicket.bind(ticketController));
+    tickets.post(
+      '/',
+      createRequestValidatorMiddleware(buyTicketSchema),
+      ticketController.buyTicket.bind(ticketController),
+    );
 
     return tickets;
   }

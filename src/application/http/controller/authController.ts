@@ -9,27 +9,17 @@ import { RegisterManagerUseCase } from '../../../domain/user/useCase/registerMan
 import { SignInUseCase } from '../../../domain/user/useCase/signInUseCase';
 import { logger } from '../../../logger';
 import { createErrorResponse } from '../response';
+import { RegisterCustomerBody } from '../schema/user/registerCustomer';
+import { RegisterManagerBody } from '../schema/user/registerManager';
+import { SignInBody } from '../schema/user/signIn';
 
 @injectable()
 export class AuthController {
-  async registerCustomer(request: Request, response: Response): Promise<void> {
-    const email = request.body.email;
-    if (!email) {
-      response.status(400).json(createErrorResponse('missing email'));
-      return;
-    }
-
-    const password = request.body.password;
-    if (!password) {
-      response.status(400).json(createErrorResponse('missing password'));
-      return;
-    }
-
-    const age = request.body.age;
-    if (!age) {
-      response.status(400).json(createErrorResponse('missing age'));
-      return;
-    }
+  async registerCustomer(
+    request: Request<unknown, unknown, RegisterCustomerBody>,
+    response: Response,
+  ): Promise<void> {
+    const { email, password, age } = request.body;
 
     const {
       useCases: { registerCustomerUseCaseHandler },
@@ -57,36 +47,17 @@ export class AuthController {
     }
   }
 
-  async registerManager(request: Request, response: Response): Promise<void> {
+  async registerManager(
+    request: Request<unknown, unknown, RegisterManagerBody>,
+    response: Response,
+  ): Promise<void> {
     const { actor } = response.locals.httpContext;
     if (!actor) {
       response.status(401).json(createErrorResponse('Unauthorized'));
       return;
     }
 
-    const email = request.body.email;
-    if (!email) {
-      response.status(400).json(createErrorResponse('missing email'));
-      return;
-    }
-
-    const password = request.body.password;
-    if (!password) {
-      response.status(400).json(createErrorResponse('missing password'));
-      return;
-    }
-
-    const passwordConfirmation = request.body.passwordConfirmation;
-    if (!passwordConfirmation) {
-      response.status(400).json(createErrorResponse('missing password confirmation'));
-      return;
-    }
-
-    const age = request.body.age;
-    if (!age) {
-      response.status(400).json(createErrorResponse('missing age'));
-      return;
-    }
+    const { email, password, age } = request.body;
 
     const {
       useCases: { registerManagerUseCaseHandler },
@@ -119,20 +90,14 @@ export class AuthController {
     }
   }
 
-  async signIn(request: Request, response: Response): Promise<void> {
-    const email = request.body.email;
-    const password = request.body.password;
+  async signIn(request: Request<unknown, unknown, SignInBody>, response: Response): Promise<void> {
+    const { email, password } = request.body;
 
-    if (!email || !password) {
-      response.status(400).json(createErrorResponse('missing email or password'));
-      return;
-    }
+    const {
+      useCases: { signInUseCaseHandler },
+    } = response.locals.httpContext;
 
     try {
-      const {
-        useCases: { signInUseCaseHandler },
-      } = response.locals.httpContext;
-
       const useCase = new SignInUseCase(email, password);
       const { token } = await signInUseCaseHandler.handle(useCase);
 

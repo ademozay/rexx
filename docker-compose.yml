@@ -59,7 +59,15 @@ services:
             {_id: 0, host: 'mongodb:27017'}
           ]
         })
-      "mongosh --host mongodb-test:28017 --eval "
+      "
+
+  mongodb-test-setup:
+    image: mongo:latest
+    depends_on:
+      mongodb-test:
+        condition: service_healthy
+    command: >
+      mongosh --host mongodb-test:28017 --eval "
         rs.initiate({
           _id: 'rs0',
           members: [

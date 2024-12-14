@@ -6,7 +6,7 @@ type UserOverrides = {
   email?: string;
   password?: string;
   age?: number;
-  role?: UserRole;
+  role: UserRole;
 };
 
 export async function createMockUser(userPort: UserPort, overrides: UserOverrides): Promise<User> {
@@ -14,7 +14,7 @@ export async function createMockUser(userPort: UserPort, overrides: UserOverride
     email: overrides.email ?? 'john-doe@rexx.com',
     password: overrides.password ?? 'password',
     age: overrides.age ?? 20,
-    role: overrides.role ?? UserRole.MANAGER,
+    role: overrides.role,
   });
   return userPort.createUser(user);
 }

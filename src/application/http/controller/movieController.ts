@@ -22,7 +22,7 @@ import { TicketNotFoundError } from '../../../domain/ticket/error/ticketNotFound
 import { TicketUserMismatchError } from '../../../domain/ticket/error/ticketUserMismatchError';
 import { logger } from '../../../logger';
 import { CreateMovieBody } from '../../schema/movie/createMovie';
-import { CreateSessionBody, CreateSessionParams } from '../../schema/movie/createSession';
+import { CreateSessionBody } from '../../schema/movie/createSession';
 import { DeleteMovieParams } from '../../schema/movie/deleteMovie';
 import { DeleteSessionParams } from '../../schema/movie/deleteSession';
 import { UpdateMovieBody, UpdateMovieParams } from '../../schema/movie/updateMovie';
@@ -196,7 +196,7 @@ export class MovieController {
   }
 
   async createSession(
-    request: Request<CreateSessionParams, unknown, CreateSessionBody>,
+    request: Request<unknown, unknown, CreateSessionBody>,
     response: Response,
   ): Promise<void> {
     const { actor } = response.locals.httpContext;
@@ -205,8 +205,7 @@ export class MovieController {
       return;
     }
 
-    const { movieId } = request.params;
-    const { sessionDate, timeSlotLabel, roomNumber } = request.body;
+    const { movieId, sessionDate, timeSlotLabel, roomNumber } = request.body;
 
     const {
       useCases: { createSessionUseCaseHandler },
@@ -260,8 +259,8 @@ export class MovieController {
       return;
     }
 
-    const { movieId, sessionId } = request.params;
-    const { sessionDate, timeSlotLabel, roomNumber } = request.body;
+    const { sessionId } = request.params;
+    const { movieId, sessionDate, timeSlotLabel, roomNumber } = request.body;
 
     const {
       useCases: { updateSessionUseCaseHandler },

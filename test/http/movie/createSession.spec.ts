@@ -42,8 +42,9 @@ describe('create session', () => {
 
     // act
     const response = await makePostRequest(
-      `/api/v1/movies/${movie.id}/sessions`,
+      `/api/v1/sessions`,
       {
+        movieId: movie.id,
         sessionDate: sessionDate.value,
         timeSlotLabel: TimeSlotLabel.Morning,
         roomNumber: 1,
@@ -80,8 +81,9 @@ describe('create session', () => {
 
     // act
     const response = await makePostRequest(
-      `/api/v1/movies/${movie.id}/sessions`,
+      `/api/v1/sessions`,
       {
+        movieId: movie.id,
         sessionDate: sessionDate.value,
         timeSlotLabel: TimeSlotLabel.Morning,
         roomNumber: 1,
@@ -119,8 +121,9 @@ describe('create session', () => {
 
     // act
     const response = await makePostRequest(
-      `/api/v1/movies/${movie.id}/sessions`,
+      `/api/v1/sessions`,
       {
+        movieId: movie.id,
         sessionDate: session.sessionDate.value,
         timeSlotLabel: TimeSlotLabel.Morning,
         roomNumber: 1,
@@ -134,19 +137,11 @@ describe('create session', () => {
   });
 
   it('should return 401 when actor is not found', async () => {
-    const {
-      makePostRequest,
-      ports: { moviePort },
-    } = setup;
-
-    // arrange
-    const movie = await createMockMovie(moviePort, {
-      name: 'Truman Show',
-      ageRestriction: AgeRestriction.PG_7,
-    });
+    const { makePostRequest } = setup;
 
     // act
-    const response = await makePostRequest(`/api/v1/movies/${movie.id}/sessions`, {
+    const response = await makePostRequest(`/api/v1/sessions`, {
+      movieId: randomUUID(),
       sessionDate: '2024-08-22',
       timeSlotLabel: TimeSlotLabel.Morning,
       roomNumber: 1,
@@ -160,23 +155,20 @@ describe('create session', () => {
   it('should return 403 when actor is not a manager', async () => {
     const {
       makePostRequest,
-      ports: { userPort, moviePort },
+      ports: { userPort },
     } = setup;
 
     // arrange
     const user = await createMockUser(userPort, { role: UserRole.CUSTOMER });
     const token = await signIn(userPort, user);
 
-    const movie = await createMockMovie(moviePort, {
-      name: 'Truman Show',
-      ageRestriction: AgeRestriction.PG_7,
-    });
     const sessionDate = createSessionDate();
 
     // act
     const response = await makePostRequest(
-      `/api/v1/movies/${movie.id}/sessions`,
+      `/api/v1/sessions`,
       {
+        movieId: randomUUID(),
         sessionDate: sessionDate.value,
         timeSlotLabel: TimeSlotLabel.Morning,
         roomNumber: 1,
@@ -203,8 +195,9 @@ describe('create session', () => {
 
     // act
     const response = await makePostRequest(
-      `/api/v1/movies/${movieId}/sessions`,
+      `/api/v1/sessions`,
       {
+        movieId,
         sessionDate: '2024-08-22',
         timeSlotLabel: TimeSlotLabel.Morning,
         roomNumber: 1,

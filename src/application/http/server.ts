@@ -57,10 +57,12 @@ export class Server {
 
     const auth = this.createAuthRoutes(this.controllers.authController);
     const movies = this.createMovieRoutes(this.controllers.movieController);
+    const sessions = this.createSessionRoutes(this.controllers.movieController);
     const tickets = this.createTicketRoutes(this.controllers.ticketController);
 
     v1.use('/auth', auth);
     v1.use('/movies', movies);
+    v1.use('/sessions', sessions);
     v1.use('/tickets', tickets);
 
     this.app.use('/api/v1', v1);
@@ -129,29 +131,35 @@ export class Server {
     );
     movies.get('/', movieController.listMovies.bind(movieController));
 
-    movies.post(
-      '/:movieId/sessions',
+    return movies;
+  }
+
+  private createSessionRoutes(movieController: MovieController): express.Router {
+    const sessions = express.Router();
+
+    sessions.post(
+      '/',
       createRequestValidatorMiddleware(createSessionSchema),
       movieController.createSession.bind(movieController),
     );
-    movies.put(
-      '/:movieId/sessions/:sessionId',
+    sessions.put(
+      '/:sessionId',
       createRequestValidatorMiddleware(updateSessionSchema),
       movieController.updateSession.bind(movieController),
     );
-    movies.delete(
-      '/:movieId/sessions/:sessionId',
+    sessions.delete(
+      '/:sessionId',
       createRequestValidatorMiddleware(deleteSessionSchema),
       movieController.deleteSession.bind(movieController),
     );
 
-    movies.get(
+    sessions.get(
       '/watch/:ticketId',
       createRequestValidatorMiddleware(watchMovieSchema),
       movieController.watchMovie.bind(movieController),
     );
 
-    return movies;
+    return sessions;
   }
 
   private createTicketRoutes(ticketController: TicketController): express.Router {

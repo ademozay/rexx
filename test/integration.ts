@@ -1,5 +1,6 @@
 import { CompositionRoot, Ports } from '../src/compositionRoot';
 import { createMongoClient } from '../src/infra/mongodb/createMongoClient';
+import { MongodbTransactionAdapter } from '../src/infra/mongodb/transaction/mongodbTransactionAdapter';
 import { MongodbMovieAdapter } from '../src/infra/movie/mongodbMovieAdapter';
 import { MongodbTicketAdapter } from '../src/infra/session/mongodbTicketAdapter';
 import { MongodbUserAdapter } from '../src/infra/user/mongodbUserAdapter';
@@ -27,6 +28,8 @@ export async function createIntegrationTestSetup({
   const mongodbMovieAdapter =
     ports?.moviePort ?? new MongodbMovieAdapter(mongoClient, databaseName);
   const mongodbUserAdapter = ports?.userPort ?? new MongodbUserAdapter(mongoClient, databaseName);
+  const mongodbTransactionAdapter =
+    ports?.transactionPort ?? new MongodbTransactionAdapter(mongoClient);
 
   compositionRoot.bindServices();
   compositionRoot.bindControllers();
@@ -34,6 +37,7 @@ export async function createIntegrationTestSetup({
     moviePort: mongodbMovieAdapter,
     ticketPort: mongodbTicketAdapter,
     userPort: mongodbUserAdapter,
+    transactionPort: mongodbTransactionAdapter,
   });
   compositionRoot.bindUseCaseHandlers();
   compositionRoot.bindBaseContext();
@@ -51,6 +55,7 @@ export async function createIntegrationTestSetup({
       moviePort: mongodbMovieAdapter,
       ticketPort: mongodbTicketAdapter,
       userPort: mongodbUserAdapter,
+      transactionPort: mongodbTransactionAdapter,
     },
     resetState,
     teardown: async () => {

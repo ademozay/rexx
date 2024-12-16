@@ -14,6 +14,7 @@ import { MovieService } from './domain/movie/service/movieService';
 import { UpdateMovieUseCaseHandler } from './domain/movie/updateMovieUseCaseHandler';
 import { UpdateSessionUseCaseHandler } from './domain/movie/updateSessionUseCaseHandler';
 import { WatchMovieUseCaseHandler } from './domain/movie/watchMovieUseCaseHandler';
+import { TransactionPort } from './domain/shared/transaction/transactionPort';
 import { BuyTicketUseCaseHandler } from './domain/ticket/buyTicketUseCaseHandler';
 import { TicketPort } from './domain/ticket/port/ticketPort';
 import { TicketService } from './domain/ticket/service/ticketService';
@@ -25,6 +26,7 @@ import { RegisterManagerUseCaseHandler } from './domain/user/registerManagerUseC
 import { UserService } from './domain/user/service/userService';
 import { SignInUseCaseHandler } from './domain/user/signInUseCaseHandler';
 import { createMongoClient } from './infra/mongodb/createMongoClient';
+import { MongodbTransactionAdapter } from './infra/mongodb/transaction/mongodbTransactionAdapter';
 import { MongodbMovieAdapter } from './infra/movie/mongodbMovieAdapter';
 import { MongodbTicketAdapter } from './infra/session/mongodbTicketAdapter';
 import { MongodbUserAdapter } from './infra/user/mongodbUserAdapter';
@@ -34,6 +36,7 @@ export type Ports = {
   userPort: UserPort;
   moviePort: MoviePort;
   ticketPort: TicketPort;
+  transactionPort: TransactionPort;
 };
 
 export class CompositionRoot {
@@ -74,11 +77,13 @@ export class CompositionRoot {
     const mongodbUserAdapter = new MongodbUserAdapter(mongoClient, databaseName);
     await mongodbUserAdapter.createIndexes();
     await mongodbUserAdapter.createRootUser();
+    const mongodbTransactionAdapter = new MongodbTransactionAdapter(mongoClient);
 
     this.bindPorts({
       moviePort: mongodbMovieAdapter,
       ticketPort: mongodbTicketAdapter,
       userPort: mongodbUserAdapter,
+      transactionPort: mongodbTransactionAdapter,
     });
     this.bindServices();
     this.bindUseCaseHandlers();
@@ -92,6 +97,9 @@ export class CompositionRoot {
     this.container.bind<MoviePort>(InjectionToken.MoviePort).toConstantValue(ports.moviePort);
     this.container.bind<TicketPort>(InjectionToken.TicketPort).toConstantValue(ports.ticketPort);
     this.container.bind<UserPort>(InjectionToken.UserPort).toConstantValue(ports.userPort);
+    this.container
+      .bind<TransactionPort>(InjectionToken.TransactionPort)
+      .toConstantValue(ports.transactionPort);
   }
 
   bindServices(): void {

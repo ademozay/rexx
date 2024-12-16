@@ -21,6 +21,7 @@ export enum InjectionToken {
   UserPort = 'UserPort',
   MoviePort = 'MoviePort',
   TicketPort = 'TicketPort',
+  TransactionPort = 'TransactionPort',
 
   UserService = 'UserService',
   MovieService = 'MovieService',

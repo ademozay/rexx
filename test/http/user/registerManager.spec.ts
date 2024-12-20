@@ -44,7 +44,7 @@ describe('register manager', () => {
     expect(response.status).toBe(201);
   });
 
-  it('should return 500 when the email is already in use', async () => {
+  it('should return 409 when the email is already in use', async () => {
     const {
       makePostRequest,
       ports: { userPort },

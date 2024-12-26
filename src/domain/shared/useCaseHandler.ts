@@ -1,3 +1,3 @@
-export interface UseCaseHandler<C, R> {
-  handle(useCase: C): Promise<R>;
+export interface UseCaseHandler<Input, Output> {
+  handle(input: Input): Promise<Output>;
 }

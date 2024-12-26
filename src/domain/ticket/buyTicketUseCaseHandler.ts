@@ -7,14 +7,15 @@ import { MovieService } from '../movie/service/movieService';
 import { AccessDeniedError } from '../shared/accessDeniedError';
 import { UseCaseHandler } from '../shared/useCaseHandler';
 import { UserService } from '../user/service/userService';
-import { Ticket } from './entity/ticket';
 import { TicketAlreadySoldError } from './error/ticketAlreadySoldError';
 import { UserTooYoungError } from './error/userTooYoungError';
 import { TicketPort } from './port/ticketPort';
-import { BuyTicketUseCase } from './useCase/buyTicketUseCase';
+import { BuyTicketUseCaseInput, BuyTicketUseCaseOutput } from './useCase/buyTicketUseCase';
 
 @injectable()
-export class BuyTicketUseCaseHandler implements UseCaseHandler<BuyTicketUseCase, Ticket> {
+export class BuyTicketUseCaseHandler
+  implements UseCaseHandler<BuyTicketUseCaseInput, BuyTicketUseCaseOutput>
+{
   constructor(
     @inject(InjectionToken.TicketPort)
     private readonly ticketPort: TicketPort,
@@ -24,7 +25,7 @@ export class BuyTicketUseCaseHandler implements UseCaseHandler<BuyTicketUseCase,
     private readonly userService: UserService,
   ) {}
 
-  async handle({ actor, sessionId }: BuyTicketUseCase): Promise<Ticket> {
+  async handle({ actor, sessionId }: BuyTicketUseCaseInput): Promise<BuyTicketUseCaseOutput> {
     if (!actor) {
       throw new AccessDeniedError();
     }
@@ -61,6 +62,8 @@ export class BuyTicketUseCaseHandler implements UseCaseHandler<BuyTicketUseCase,
     }
 
     const ticket = session.createTicket(actor.id);
-    return this.ticketPort.createTicket(ticket);
+    const createdTicket = await this.ticketPort.createTicket(ticket);
+
+    return { ticket: { id: createdTicket.id } };
   }
 }

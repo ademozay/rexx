@@ -1,11 +1,11 @@
-import { Ticket } from '../../../domain/ticket/entity/ticket';
+import { BuyTicketUseCaseOutput } from '../../../domain/ticket/useCase/buyTicketUseCase';
 
 export type TicketResponse = {
   id: string;
 };
 
 export class TicketMapper {
-  static toResponse(ticket: Ticket): TicketResponse {
+  static toResponse({ ticket }: BuyTicketUseCaseOutput): TicketResponse {
     return { id: ticket.id };
   }
 }

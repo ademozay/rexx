@@ -26,13 +26,13 @@ export class TicketController {
     } = response.locals.httpContext;
 
     try {
-      const ticket = await buyTicketUseCaseHandler.handle({
+      const { ticket } = await buyTicketUseCaseHandler.handle({
         actor,
         sessionId,
       });
 
       response.status(201).json({
-        data: TicketMapper.toResponse(ticket),
+        data: TicketMapper.toResponse({ ticket }),
       });
     } catch (error) {
       // TODO: we should use i18n to return localized response message for each domain error
